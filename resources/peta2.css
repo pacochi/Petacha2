@@ -243,15 +243,15 @@ input#backup{
 	}
 
 input#year{
-	width:2em;
+	width:2.5em;
 	}
 
 input#month{
-	width:1em;
+	width:1.5em;
 	}
 
 input#day{
-	width:1em;
+	width:1.5em;
 	}
 
 button#reload{

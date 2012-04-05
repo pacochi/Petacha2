@@ -34,7 +34,8 @@ PT2.text = {
  autopaste: 'オートペースト',
  backup: 'バックアップ',
  pastlog: '過去ログ',
- view: '閲覧'
+ view: '閲覧',
+ reverselog: '逆順'
 };
 PT2.text.message = {
  chat_announce: '離脱 (退室) する時は「離脱」と発言して下さい。',
@@ -595,6 +596,8 @@ PT2.C.addLogViewer = function() {
 	  .tag('input').attr('id', 'year').val(yday.getFullYear()).gat()
 	  .tag('input').attr('id', 'month').val(yday.getMonth()+1).gat()
 	  .tag('input').attr('id', 'day').val(yday.getDate()).gat()
+	  .tag('input').attr({ type: 'checkbox', id: 'reverselog' }).gat()
+	  .tag('label').attr('for', 'reverselog').text(PT2.text.reverselog).gat()
 	  .tag('button').attr('id', 'getlog').text(PT2.text.view).gat()
 	  .tag('button type="button"').addClass('close').click(function() { PT2.fView.hide('slow'); }).text(PT2.text.close).gat()
 	 .gat().tag('div').attr('id', 'past').gat().gat();
@@ -608,6 +611,7 @@ PT2.C.addLogViewer = function() {
 	PT2.input.year = $('#year');
 	PT2.input.month = $('#month');
 	PT2.input.day = $('#day');
+	PT2.input.reverselog = $('#reverselog');
 	PT2.input.getlog = $('#getlog');
 	PT2.input.button = $('#say button,#getlog');
 
@@ -638,8 +642,17 @@ PT2.C.scrollToLatest = function() {
 // 過去ログを受け取って表示
 PT2.C.showPastLog = function(logs) {
 
-	PT2.dPast.html(logs);
-	$('[id]', PT2.dPast).each(function() { this.id = 'past-' + this.id; });
+	var reverse = PT2.input.reverselog.is(':checked');
+
+	PT2.dPast.empty().tag('div').attr('id', 'pastcontainer').html(logs).gat();
+
+	$('p', $('#pastcontainer')).each(function() {
+
+		if (this.id) this.id = 'past-' + this.id;
+		if (reverse) PT2.dPast.prepend(this);
+
+	});
+
 	PT2.F.enableButton();
 
 };
