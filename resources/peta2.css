@@ -63,7 +63,7 @@ ul.navi li{
 
 div#body{
 	margin:0px auto;
-	width:60%;
+	width:90%;
 	height:80%;
 	padding:1em;
 	border-radius:10px;
@@ -319,6 +319,16 @@ dfn{
 
 abbr{
 	border-bottom:1px dashed;
+	}
+
+/* ツール */
+
+header, footer, section{
+	margin:1em;
+	}
+
+section#peta2{
+	display:none;
 	}
 
 }

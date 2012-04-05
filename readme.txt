@@ -1,4 +1,4 @@
-ぺたちゃ2 ver. 111103_0 (beta)
+ぺたちゃ2 ver. 111117_0 (beta)
 
 ■概要
 
@@ -33,9 +33,15 @@ petacha2
 │├jquery-1.6.1.min.js
 │├jquery.tag.js
 │├peta2.js
+│├activity.js
 │├peta2.css
 │├peta2_color.css
 │└Peta2Copy.swf
+├tools
+│├confeditor.htm
+│├coloreditor.htm
+│├activity_test.htm
+│└tool.js
 ├logs
 │├error_log.txt (設置後に作成されます)
 │├pt2.sqlite (設置後に作成されます)
@@ -86,17 +92,34 @@ index.php もしくは / で終わる URL にアクセスしてみて、
 □チャットの設定
 conf.xml をテキストエディタや XML エディタで開き、設定を確認・変更して下さい。
 各設定値の説明はコメントとして書かれています。
+tools/confeditor.htm を使うと楽かもしれません。
+(ローカルでは多分動かないので、サーバにアップロードして使って下さい。)
 
 □色の設定
 resources/peta2_color.css をテキストエディタや CSS エディタで開き、変更して下さい。
+tools/coloreditor.htm を使うと楽かもしれません。
+(ローカルでは多分動かないので、サーバにアップロードして使って下さい。)
 発言色セットは conf.xml から変更して下さい。
 
 □その他の設定
 分かる範囲で各自いじって下さい。
+設定項目以外のカスタマイズに関しても特に制限はありません。
 
 □チャットの使い方
 以下をご覧下さい。
 http://chat.am.cute.bz/help/
+
+□別ページでの入室状況表示
+1.
+resources/activity.js をテキストエディタ等で開き、設定を変更して下さい。
+2.
+ページの表示させたい箇所にさっき設定した ID と同じ ID を割り振って、
+resources/jquery-1.6.1.min.js と resources/activity.js を読み込むようにして下さい。
+(jQuery は他のバージョンでもおおむね大丈夫だと思います。)
+サンプルとして tools/activity_test.htm を用意しました。参考にして下さい。
+3.
+細かい調整をしたい場合、各自でスクリプトを改変したり、改変してもらったりして下さい。
+尚、Ajax で XML を読み込んでいる関係から、別ドメインのページでは利用できません。
 
 
 ■ライセンス
@@ -120,6 +143,10 @@ kaskat+am@gmail.com
 
 
 ■バージョン履歴
+
+□ver. 111117_0 (beta)
+conf.xml と peta2_color.css の簡易エディタを追加
+入室状況を別ページで表示する activity.js を追加
 
 □ver. 111103_0 (beta)
 逆順表示時に閲覧ツールでちゃんと閲覧できるように調整

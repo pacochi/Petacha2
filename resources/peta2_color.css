@@ -8,7 +8,6 @@ body{
 	}
 
 a{
-
 	}
 
 a:link{
@@ -37,14 +36,14 @@ span.date{
 
 p.alert{
 	color:#E00;
-	border-color:#E00;
 	background-color:#FEE;
+	border-color:#E00;
 	}
 
 p.note{
 	color:#807;
-	border-color:#F8E;
 	background-color:#FEF;
+	border-color:#F8E;
 	}
 
 form#view{
@@ -73,7 +72,10 @@ input, textarea, select{
 button{
 	color:ButtonText;
 	background-color:ButtonFace;
-	border-color:ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
+	border-top-color:ButtonHighlight;
+	border-right-color:ButtonShadow;
+	border-bottom-color:ButtonShadow;
+	border-left-color:ButtonHighlight;
 	}
 
 button[disabled]{
@@ -98,8 +100,8 @@ div#picker{
 
 /* チャットでは使用しません */
 h2{
-	border-color:#936;
 	color:#936;
+	border-color:#936;
 	}
 
 p.sample{
