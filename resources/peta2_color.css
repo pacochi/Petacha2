@@ -64,7 +64,7 @@ label.colorpick:hover{
 	background-color:#FEF;
 	}
 
-input, select{
+input, textarea, select{
 	color:#000;
 	background-color:#FEF;
 	border-color:#000;

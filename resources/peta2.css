@@ -182,7 +182,7 @@ form#view p.logdate{
 	padding:1em 1em 0.5em 0.5em;
 	}
 
-input, select, button{
+input, textarea, select, button{
 	border-width:1px;
 	border-style:solid;
 	}
@@ -252,6 +252,12 @@ input#month{
 
 input#day{
 	width:1.5em;
+	}
+
+textarea#logtext{
+	display:none;
+	width:90%;
+	height:4em;
 	}
 
 button#reload{

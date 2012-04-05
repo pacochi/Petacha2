@@ -96,7 +96,7 @@
  <backup>バックアップ</backup>
  <pastlog>過去ログ</pastlog>
  <view>閲覧</view>
- <reverselog>逆順</reverselog>
+ <reverselog>逆順 (閲覧ツール用)</reverselog>
 <!--
  *adminname - あなたの名前
  RSS などで表示されます
