@@ -12,7 +12,7 @@ if (typeof(window.PT2) == 'undefined') { // タブ省略
 // インスタンス化とかしないで直に使うおもちゃ箱
 window.PT2 = {};
 // conf.xml 読む前に決めること
-PT2.version = 111212; // よく変え忘れるけど気にしないでね
+PT2.version = 111214; // よく変え忘れるけど気にしないでね
 PT2.confFile = './conf.xml';
 PT2.URL = location.href.replace(/[#\?].*$/, '');
 PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dID：|検証ID：|ﾀｰﾝ\d-\d：|セットID：)\d+/;
@@ -1046,7 +1046,13 @@ PT2.X.addConf = function(xml, doc) {
 // PT2.S.clipboardData から移動した
 PT2.P.addCopySwf = function() {
 
-	if (PT2.copySwf) return;
+	if (PT2.copySwf) {
+
+		// バージョンアップを促すため一時的に入れてるだけなのでべた書き
+		// レビュー通ってから出す
+		// PT2.A.addNote('AutoPaster のバージョンが古いようです。オートペーストがうまく動作しない場合は最新版にしてみて下さい。');
+		return;
+	}
 
 	PT2.body.tag('object').attr({ id: 'copy', type: 'application/x-shockwave-flash', data: PT2.copySwfFile })
 	  .tag('param').attr({ name: 'wmode', value: 'transparent' }).gat()
@@ -1116,7 +1122,7 @@ PT2.P.paste = function() {
 
 	if (PT2.input.m.val() != '' || !PT2.input.autopaste.is(':checked')) return(PT2);
 
-	if (typeof(PT2.clipboardData.getData) == 'function') PT2.P.pasteIE();
+	if (typeof(PT2.clipboardData.getData) != 'boolean') PT2.P.pasteIE();
 	 else if (PT2.exSelf) PT2.exSelf.postMessage({ type: 'getClip' });
 
 	return(PT2);
