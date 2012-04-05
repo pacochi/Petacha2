@@ -166,7 +166,7 @@ class PtLog {
 			$xmlDoc->formatOutput = true;
 			$xmlDoc->resolveExternals = true;
 			$xmlDoc->save($logFile, LIBXML_NOEMPTYTAG);
-			@chmod($logFile, 0666);
+			PtUtil::tryChmod($logFile, 0666);
 
 		}
 

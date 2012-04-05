@@ -105,15 +105,16 @@ class PtUtil {
 	}
 
 	# アクセス権の変更を試みる
-	public static function tryChmod() {
+	# 何かの拍子に所有者が変わるサーバがある
+	public static function tryChmod($file, $permission) {
 
-		try {
+		# 既に満たしてたらそれでいい事にしておく
+		if (fileperms($file) & $permission) return(true);
+		# 所有者が違ってたらやめておく
+		if (!extension_loaded('posix') || posix_getuid() !== fileowner($file)) return(false);
 
-
-		} catch (Exception $e) {
-
-
-		}
+		$result = chmod($file, $permission);
+		return($result);
 
 	}
 
@@ -143,7 +144,7 @@ class PtUtil {
 		$LOG_fp = fopen($logFile, 'a');
 		fwrite($LOG_fp, "{$line}\n");
 		fclose($LOG_fp);
-		@chmod($logFile, 0666);
+		self::tryChmod($logFile, 0666);
 
 	}
 

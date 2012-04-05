@@ -231,7 +231,6 @@ class PtUser {
 		$select = current(PtConf::C('select'));
 		$select = new SimpleXMLElement($select->asXML());
 
-#$c = PtConf::C('select/color[.="red"]');
 		# 色、行数、リロード
 		$sets = array('color' => $this->color, 'line' => $this->line, 'reloadsec' => $this->reload);
 
