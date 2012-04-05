@@ -1,6 +1,6 @@
 /*
 
-ぺたちゃ2 の入室状況表示スクリプト (peta2.js)
+ぺたちゃ2 の入室状況表示スクリプト (activity.js)
 書いた人 : kaska
 みんなで使ってね。なかよく使ってね。
 
@@ -25,7 +25,7 @@ $.ajax({
 		var date = xml.find('chat:last').children('date').text(); // 日付
 		xml.find('member').each(function() { // 参加者の数だけ回す
 
-			_this = $(this);
+			var _this = $(this);
 			var name = _this.children('name').text(); // 名前
 			var color = _this.children('color').text(); // 色
 			member += '<span style="color:' + color + ';">' + name + '</span> ';
@@ -33,8 +33,8 @@ $.ajax({
 		});
 
 		if (member.length == 0) member = 'いません';
-		successHTML = successHTML.replace(/\{date\}/, date).replace(/\{member\}/, member);
-		$('#' + containerId).html(successHTML);
+		var resultHTML = successHTML.replace(/\{date\}/, date).replace(/\{member\}/, member);
+		$('#' + containerId).html(resultHTML);
 
 	},
 	error: function() {

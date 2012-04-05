@@ -1,4 +1,4 @@
-‚Ø‚½‚¿‚á2 ver. 111117_0 (beta)
+‚Ø‚½‚¿‚á2 ver. 111119_0 (beta)
 
 ¡ŠT—v
 
@@ -34,6 +34,7 @@ petacha2
 „ „¥jquery.tag.js
 „ „¥peta2.js
 „ „¥activity.js
+„ „¥activities.js
 „ „¥peta2.css
 „ „¥peta2_color.css
 „ „¤Peta2Copy.swf
@@ -121,6 +122,9 @@ resources/jquery-1.6.1.min.js ‚Æ resources/activity.js ‚ğ“Ç‚İ‚Ş‚æ‚¤‚É‚µ‚Ä‰º‚³‚
 ×‚©‚¢’²®‚ğ‚µ‚½‚¢ê‡AŠe©‚ÅƒXƒNƒŠƒvƒg‚ğ‰ü•Ï‚µ‚½‚èA‰ü•Ï‚µ‚Ä‚à‚ç‚Á‚½‚è‚µ‚Ä‰º‚³‚¢B
 ®AAjax ‚Å XML ‚ğ“Ç‚İ‚ñ‚Å‚¢‚éŠÖŒW‚©‚çA•ÊƒhƒƒCƒ“‚Ìƒy[ƒW‚Å‚Í—˜—p‚Å‚«‚Ü‚¹‚ñB
 
+•¡”‚Ìƒ`ƒƒƒbƒg‚Ì“üºó‹µ‚ğ‚Ğ‚Æ‚Â‚Ìƒy[ƒW‚Å•\¦‚·‚éê‡A
+resources/activity.js ‚Ì containerId ‚ğ‚©‚Ô‚ç‚È‚¢‚æ‚¤•ÏX‚µ‚Äƒ`ƒƒƒbƒg‚Ì”‚¾‚¯“Ç‚İ‚Ş‚©A
+resources/activities.js ‚ğ—˜—p‚µ‚Ä‰º‚³‚¢B (g‚¢•û‚ÍƒXƒNƒŠƒvƒg‚ÌƒRƒƒ“ƒg‚É‚ ‚è‚Ü‚·B)
 
 ¡ƒ‰ƒCƒZƒ“ƒX
 
@@ -143,6 +147,10 @@ kaskat+am@gmail.com
 
 
 ¡ƒo[ƒWƒ‡ƒ“—š—ğ
+
+ ver. 111119_0 (beta)
+activity.js ‚ğ‚¿‚å‚Á‚ÆC³
+•¡”‚Ì“üºó‹µ•\¦‚·‚é activities.js ‚ğ’Ç‰Á
 
  ver. 111117_0 (beta)
 conf.xml ‚Æ peta2_color.css ‚ÌŠÈˆÕƒGƒfƒBƒ^‚ğ’Ç‰Á
