@@ -1,0 +1,9 @@
+# rename to ".htaccess"
+
+order deny,allow
+deny from all
+
+<Files ~ "\.xml$">
+order allow,deny
+allow from all
+</Files>

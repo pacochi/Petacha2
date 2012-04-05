@@ -37,7 +37,7 @@
           <strong class="name" style="color:{@color};"><xsl:value-of select="." /></strong>
          </xsl:when>
          <xsl:when test="name()='cmd'">
-          <em class="command"><xsl:value-of select="." disable-output-escaping="yes" /></em>
+          <em class="command"><xsl:value-of select="." /></em>
          </xsl:when>
          <xsl:otherwise>
           <xsl:value-of select="." />

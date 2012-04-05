@@ -1,20 +1,135 @@
-ぺたちゃ2 ver. 110216_0 (alpha)
+ぺたちゃ2 ver. 110507_0 (beta)
 
-詳しい使い方説明は未執筆です。
-alpha が取れるのは早くて数ヵ月後、遅くて数十年後です。
+■概要
 
-■簡単な使い方説明
-conf.xml を編集後、PHP5 の使えるサーバに全てのファイルをアップロードして下さい。
+ぺたちゃ2 は GGD や SISTER を遊びやすくするためのチャットです。
 
-logs ディレクトリと sessions ディレクトリのパーミッションをいじって下さい。
+
+■動作環境
+
+PHP5 が使えるサーバで動作します。
+.htaccess が使えると若干心強いです。
+
+
+■構成
+
+petacha2
+├lib
+│├index.php
+│├PtCommand.php
+│├PtConf.php
+│├PtLog.php
+│├PtPage.php
+│├PtSQL.php
+│├PtText.php
+│├PtUser.php
+│├PtUtil.php
+│└JP106Key.php
+├templates
+│├base.xsl
+│├log.xsl
+│└rss.xsl
+├resources
+│├jquery-1.4.2.min.js
+│├jquery.tag.js
+│├peta2.js
+│├peta2.css
+│├peta2_color.css
+│└Peta2Copy.swf
+├logs
+│├error_log.txt (設置後に作成されます)
+│├pt2.sqlite (設置後に作成されます)
+│├pt2host.sqlite (設置後に作成されます)
+│├*.xml (設置後に作成されます)
+│├access_*.log (設置後に作成されます)
+│└htaccess.txt
+├sessions
+│└(設置後にセッションファイルが作成されます)
+├index.php
+├db_setup.php (設置後はサーバから削除して下さい)
+├conf.xml
+└readme.txt
+
+
+■サーバへの設置と設定
+
+□前準備
+ファイルの文字コードはおおむね UTF-8 なので (このテキストだけ Shift_JIS)、
+設定を確認・編集する際には UTF-8 でも読み書きできるエディタをご用意下さい。
+
+□設置の手順
+1.
+PHP5 の使えるサーバに全てのファイルをアップロードして下さい。
+petacha2 のフォルダごとアップロードすると楽です。
+2.
+logs ディレクトリと sessions ディレクトリのパーミッションを、
+PHP がそのディレクトリにファイルを作成できるようにいじって下さい。
 (707 とか 777 とか、設置サーバによって違います。)
-
-その後 db_setup.php にアクセスして下さい。
+3.
+db_setup.php にアクセスして下さい。
 データベースがうまく作られたら、db_setup.php はサーバ上から削除して下さい。
+4.
+index.php もしくは / で終わる URL にアクセスしてみて、
+特にエラーが出なかったら設置完了です。
 
-背景色などは resources/peta2_color.css、
-その他見た目は resources/peta2.css をいじって下さい。
+エラーログとアクセスログは logs ディレクトリに作成されます。
+ちょくちょく確認してみて下さい。
+
+途中でつまずいた場合は、ご連絡下さい。
+スローペースながら問題解決のお手伝いをさせていただきます。
+
+□ログフォルダのアクセス制限
+.htaccess が使えるサーバでしたら、logs ディレクトリに入っている htaccess.txt を
+.htaccess にリネームすると、外部からアクセスログを覗かれないようになります。
+過去ログは閲覧できます。
+
+□チャットの設定
+conf.xml をテキストエディタや XML エディタで開き、設定を確認・変更して下さい。
+各設定値の説明はコメントとして書かれています。
+
+□色の設定
+resources/peta2_color.css をテキストエディタや CSS エディタで開き、変更して下さい。
+発言色セットは conf.xml から変更して下さい。
+
+□その他の設定
+分かる範囲で各自いじって下さい。
+
+□チャットの使い方
+以下をご覧下さい。
+http://chat.am.cute.bz/help/
+
+
+■ライセンス
+
+同梱されている jQuery (resources/jquery-1.4.2.min.js) は、
+MIT ライセンスと GPL のデュアル・ライセンスです。
+http://jquery.org/license/
+
+同梱されている jQuery Tag プラグイン (resources/jquery.tag.js) も、
+jQuery と同じ MIT ライセンスと GPL のデュアル・ライセンスです。
+http://developmentor.lrlab.to/postal/jquery/jquery.tag.html
+
+その他は kaska が書いたもので、びしっとしたライセンス条項はありません。
+みんなで使ってね。なかよく使ってね。
+(ライセンス名が必要な場合、MTNT ライセンスと記しといて下さい。)
+
 
 ■連絡先
+
 kaskat+am@gmail.com
-(返信がとても遅れる可能性があります。)
+
+
+■バージョン履歴
+
+□ver. 110507_0 (beta)
+書きかけのヘルプおよび Readme に加筆
+リロードカウンターをリロードボタンに追加
+発言削除時にログを読み直すよう変更
+行数変更時にログを読み直すよう変更
+リモートホストのキャッシュのロックが半端だったのを修正
+携帯およびスマートホンでの可読性が若干向上するよう修正
+XSS の対策漏れがあったので修正
+
+□ver. 110216_0 (alpha)
+取り急ぎリリース
+実際の公開日は 2011.03.29

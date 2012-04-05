@@ -4,6 +4,8 @@
 <xsl:template match="/page">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
  <head>
+  <meta name="author" content="{conf/text/adminname}" />
+  <meta name="viewport" content="width=device-width,user-scalable=yes,initial-scale=1.0" />
   <link type="text/css" rel="stylesheet" href="{conf/path/dir/resources}peta2.css" media="all" />
   <link type="application/rss+xml" rel="alternate" title="RSS" href="{conf/text/rssurl}" />
   <title><xsl:value-of select="conf/text/title" /></title>
@@ -64,7 +66,7 @@
           <strong class="name" style="color:{@color};"><xsl:value-of select="." /></strong>
          </xsl:when>
          <xsl:when test="name()='cmd'">
-          <em class="command"><xsl:value-of select="." disable-output-escaping="yes" /></em>
+          <em class="command"><xsl:value-of select="." /></em>
          </xsl:when>
          <xsl:otherwise>
           <xsl:value-of select="." />

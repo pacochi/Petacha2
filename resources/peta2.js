@@ -29,6 +29,7 @@ PT2.text = {
  said: ' &gt; ',
  announce: '※',
  close: '×',
+ noreload: '手動',
  autopaste: 'オートペースト',
  backup: 'バックアップ',
  pastlog: '過去ログ',
@@ -59,6 +60,7 @@ PT2.toXSLDoc = false;
 PT2.clipboardData = null;
 PT2.XSLTProcessor = null;
 PT2.reloadTimer = false;
+PT2.reloadCounter = 0;
 PT2.logXSL = null;
 PT2.copySwf = null;
 PT2.body = null;
@@ -84,6 +86,7 @@ PT2.S.init = function() {
 	PT2
 	 .S.saveVars()
 	 .F.setAjax()
+	 .F.setLineResetter()
 	 .F.setColorPicker()
 	 .F.setReloadButton()
 	 .F.setAutoPaste()
@@ -293,6 +296,15 @@ PT2.F.changeColor = function() {
 
 };
 
+// 行数変更時にログ読み直しイベント追加
+PT2.F.setLineResetter = function() {
+
+	PT2.input.l.change(PT2.X.superReload);
+
+	return(PT2);
+
+};
+
 // リロードボタン設置
 PT2.F.setReloadButton = function() {
 
@@ -315,9 +327,50 @@ PT2.F.setReloadButton = function() {
 // 自動リロードを作動させる
 PT2.F.setReloadTimer = function() {
 
-	var sec = PT2.input.r.val();
+	PT2.reloadCounter = parseInt(PT2.input.r.val(), 10);
+
+	if (PT2.reloadCounter > 0) {
+
+		PT2.F.countDownTimer();
+
+	} else {
+
+		if (PT2.reloadTimer) clearTimeout(PT2.reloadTimer);
+		PT2.input.reload.text(PT2.text.reload + PT2.text.spliter + PT2.text.noreload);
+
+	}
+
+};
+
+// リロードまで一秒ずつ測る
+PT2.F.countDownTimer = function() {
+
 	if (PT2.reloadTimer) clearTimeout(PT2.reloadTimer);
-	PT2.reloadTimer = (sec > 0) ? setTimeout(PT2.X.autoReload, sec * 1000) : false;
+
+	if (PT2.reloadCounter > 0) {
+
+		PT2.reloadCounter--;
+		PT2.F.drawReloadCount();
+		PT2.reloadTimer = setTimeout(PT2.F.countDownTimer, 1000);
+
+	} else {
+
+		PT2.reloadTimer = false;
+		PT2.F.drawReloadCount();
+		PT2.X.autoReload();
+
+	}
+
+};
+
+// リロード残り秒数を表示
+PT2.F.drawReloadCount = function() {
+
+	var count = PT2.text.spliter
+	 + parseInt(PT2.reloadCounter / 100, 10)
+	 + parseInt(PT2.reloadCounter % 100 / 10, 10)
+	 + PT2.reloadCounter % 10;
+	PT2.input.reload.text(PT2.text.reload + count);
 
 };
 
@@ -332,7 +385,8 @@ PT2.F.setAutoPaste = function() {
 	 .tag('input').attr({ type: 'checkbox', id: 'autopaste', name: 'autopaste', checked: 'checked' }).val('1').gat()
 	 .gat()
 	 .tag('label').text(PT2.text.backup + PT2.text.spliter)
-	 .tag('input').attr({ type: 'text', id: 'backup', name: 'backup', readonly: 'readonly' }).val('').gat()
+	// ログにむっちゃ残るから「name: 'backup', 」はおあずけ
+	 .tag('input').attr({ type: 'text', id: 'backup', readonly: 'readonly' }).val('').gat()
 	 .gat();
 
 	PT2.input.autopaste = $('input#autopaste');
@@ -359,9 +413,14 @@ PT2.F.setOutButton = function() {
 };
 
 // 最後の発言 id をセットする
-PT2.F.setLastId = function() {
+PT2.F.setLastId = function(reset) {
 
-	if (PT2.dChat.is(':has(p.chat)')) PT2.input.i.val($('p.chat:last', PT2.dChat).attr('id').substr(1));
+	if (PT2.dChat.is(':has(p.chat)')) {
+
+		var lastId = reset ? '0' : $('p.chat:last', PT2.dChat).attr('id').substr(1);
+		PT2.input.i.val(lastId);
+
+	}
 
 	return(PT2);
 
@@ -683,7 +742,9 @@ PT2.X.setXSL = function(data) {
 // 発言
 PT2.X.post = function() {
 
-	PT2.X.loadLog('POST').F.clearSaying();
+	// 削除した時だけログリセット
+	var reset = /^_del_/.test(PT2.input.m.val());
+	PT2.X.loadLog('POST', reset).F.clearSaying();
 	PT2.F.setReloadTimer();
 
 	// form のイベント用だから
@@ -694,7 +755,15 @@ PT2.X.post = function() {
 // リロード
 PT2.X.reload = function() {
 
-	PT2.X.loadLog('GET');
+	PT2.X.loadLog('GET', false);
+	PT2.F.setReloadTimer();
+
+};
+
+// スーパーリロード
+PT2.X.superReload = function() {
+
+	PT2.X.loadLog('GET', true);
 	PT2.F.setReloadTimer();
 
 };
@@ -707,9 +776,9 @@ PT2.X.autoReload = function() {
 };
 
 // ログ送受信
-PT2.X.loadLog = function(method) {
+PT2.X.loadLog = function(method, reset) {
 
-	PT2.F.disableButton().F.setLastId();
+	PT2.F.disableButton().F.setLastId(reset);
 	var param = PT2.fSay.serialize();
 
 	// リロードの場合発言は送らない

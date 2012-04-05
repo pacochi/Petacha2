@@ -101,8 +101,6 @@ class PtConf {
 
 		}
 
-		$db->queryExec('COMMIT TRANSACTION;');
-
 		# データベースにアドレスがあるか調べる
 		$query = sprintf("SELECT host FROM %s WHERE addr = '%s';", $tHost, $addr);
 		$result = $db->unbufferedQuery($query, SQLITE_ASSOC, $error);
@@ -119,6 +117,8 @@ class PtConf {
 			if (!$db->queryExec($query, $error)) PtUtil::debug("{$error} - {$query}");
 
 		}
+
+		$db->queryExec('COMMIT TRANSACTION;');
 
 		# SQLiteDatabase::close() が無いんだけどこれでいいのかな
 		unset($db);

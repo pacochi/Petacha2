@@ -104,6 +104,19 @@ class PtUtil {
 
 	}
 
+	# アクセス権の変更を試みる
+	public static function tryChmod() {
+
+		try {
+
+
+		} catch (Exception $e) {
+
+
+		}
+
+	}
+
 	# アクセスログ書き出し
 	public static function accessLog($cid, $status, $size) {
 

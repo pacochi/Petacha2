@@ -28,10 +28,6 @@ h1{
 	letter-spacing:0.5em;
 	}
 
-h2{
-	font-size:100%;
-	}
-
 ul#member{
 	margin:0px;
 	padding:0px;
@@ -260,10 +256,11 @@ input#day{
 
 button#reload{
 	width:80%;
-	letter-spacing:0.5em;
+	letter-spacing:0.2em;
 	margin-right:0.5em;
 	}
 
+/* コピー用 swf */
 object#copy{
 	position:absolute;
 	top:0px;
@@ -271,6 +268,7 @@ object#copy{
 	height:1em;
 	}
 
+/* カラーピッカー */
 div#picker{
 	position:absolute;
 	z-index:4;
@@ -289,15 +287,58 @@ div.box div{
 	cursor:default;
 	}
 
-}
-
-body#peta2-help div#body{
+/* ヘルプ */
+body#peta2-help, body#peta2-help div#body{
 	height:auto;
 	}
 
+body#peta2-help p{
+	line-height:140%;
+	}
+
+h2{
+	margin-top:2em;
+	border-left:0.5em double;
+	padding-left:0.5em;
+	font-size:100%;
+	}
+
+h3{
+	font-size:100%;
+	}
+
+dfn{
+	font-style:normal;
+	}
+
+abbr{
+	border-bottom:1px dashed;
+	}
+
+}
+
+/* 携帯 */
 @media handheld {
 
 div#body{
+	margin:0px;
+	width:90%;
+	height:auto;
+	}
+
+div#chat{
+	height:auto;
+	overflow:visible;
+	}
+
+}
+
+/* スマートフォン */
+@media only screen and (max-device-width: 480px) {
+
+div#body{
+	margin:0px;
+	width:90%;
 	height:auto;
 	}
 

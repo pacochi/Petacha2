@@ -33,16 +33,17 @@
 <select>
 <!--
  *line - 行数
- 1 以上の自然数のみ (それ以外の値を書いた時の動作は保障しません)
+ 1 以上の正の整数のみ (それ以外の値を書いた時の動作は保障しません)
  最初が最小値、最後が最大値 (スクリプト内でこの値が使われます)
  -->
  <line default="no">10</line>
  <line default="yes">50</line>
  <line default="no">100</line>
+ <line default="no">400</line>
 
 <!--
  *reloadsec - リロード秒数、0 で無効
- 0 を含めた自然数のみ (それ以外の値を書いた時の動作は保障しません)
+ 0 および正の整数のみ (それ以外の値を書いた時の動作は保障しません)
  最初が最小値、最後が最大値 (スクリプト内でこの値が使われます)
  -->
  <reloadsec default="no">0</reloadsec>
@@ -99,12 +100,21 @@
  -->
  <rssdesc>ぺたちゃ2 の最新の発言です。</rssdesc>
 <!--
+ *systemname - システム発言の名前
+ -->
+ <systemname>SYSTEM</systemname>
+<!--
+ *systemcid - システム発言の cid
+ -->
+ <systemcid>000000</systemcid>
+<!--
+ *systemcolor - システム発言の色
+ -->
+ <systemcolor>dimgray</systemcolor>
+<!--
  *innormal - システム発言 (参加)
  {name} は参加者の名前に置換されます、outnormal, outtimeout も同様です
  -->
- <systemname>SYSTEM</systemname>
- <systemcid>000000</systemcid>
- <systemcolor>dimgray</systemcolor>
  <innormal>{name} さんが参加しました。</innormal>
 <!--
  *outnormal - システム発言 (離脱)
@@ -161,7 +171,7 @@
 
 <!--
  *host - 制限するリモートホストまたはアドレス (部分一致)
- 設置サーバのアクセスログを参照して下さい
+ アクセスログを参照して下さい
  例示したホストは robots.txt で対策した方がスマートかもしれません
  -->
  <host>.googlebot.com</host>
@@ -170,14 +180,14 @@
 
 <!--
  *ua - 制限するユーザエージェント (部分一致)
- 設置サーバのアクセスログを参照して下さい
+ アクセスログを参照して下さい
  -->
  <ua>http://</ua>
  <ua>bot/</ua>
 
 <!--
  *ref - 制限するリファラ (部分一致)
- 設置サーバのアクセスログを参照して下さい
+ アクセスログを参照して下さい
  はじいたところでリファラスパムを諦めてくれるかどうかは不明です
  -->
  <ref>tinyurl.com/muryou</ref>

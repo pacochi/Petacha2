@@ -1,3 +1,7 @@
+@charset "UTF-8";
+
+@media all {
+
 body{
 	color:#000;
 	background-color:#FEF;
@@ -91,3 +95,15 @@ option{
 div#picker{
 	border-color:#000;
 	}
+
+/* チャットでは使用しません */
+h2{
+	border-color:#936;
+	color:#936;
+	}
+
+p.sample{
+	color:#868;
+	}
+
+}
