@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<conf>
+<!--
+ *option - オンオフ可能な機能まとめ
+ on または off の値をとります
+ -->
+<option>
+
+<!--
+ *accesslog - logs ディレクトリにアクセスログを保存
+ サーバの容量に余裕がない場合は「off」にして下さい
+ -->
+ <accesslog>on</accesslog>
+
+<!--
+ *dailylog - logs ディレクトリに日付毎のログを保存
+ サーバの容量に余裕がない場合は「off」にして下さい
+ -->
+ <dailylog>on</dailylog>
+
+<!--
+ *trimurl - URL から "index.php" という表記を削る
+ index.php を省略できないサーバでは「off」にして下さい
+ -->
+ <trimurl>on</trimurl>
+
+</option>
+
+<!--
+ *select - 選択肢まとめ
+ default="yes" で選択肢の初期値として表示されます
+ -->
+<select>
+<!--
+ *line - 行数
+ 1 以上の自然数のみ (それ以外の値を書いた時の動作は保障しません)
+ 最初が最小値、最後が最大値 (スクリプト内でこの値が使われます)
+ -->
+ <line default="no">10</line>
+ <line default="yes">50</line>
+ <line default="no">100</line>
+
+<!--
+ *reloadsec - リロード秒数、0 で無効
+ 0 を含めた自然数のみ (それ以外の値を書いた時の動作は保障しません)
+ 最初が最小値、最後が最大値 (スクリプト内でこの値が使われます)
+ -->
+ <reloadsec default="no">0</reloadsec>
+ <reloadsec default="no">30</reloadsec>
+ <reloadsec default="yes">60</reloadsec>
+ <reloadsec default="no">120</reloadsec>
+
+<!--
+ *color - 色
+ CSS3 のカラーモジュールを基にした値 (全て小文字で)
+ attr(identifier,color) は使えません
+ -->
+ <color default="yes">#936</color>
+ <color default="no">black</color>
+ <color default="no">#505</color>
+ <color default="no">#105</color>
+ <color default="no">#06a</color>
+ <color default="no">#084</color>
+ <color default="no">#a90</color>
+ <color default="no">#801</color>
+
+</select>
+
+<!--
+ *text - 表示用文字列まとめ
+ -->
+<text>
+ <title>ぺたちゃ2</title>
+ <join>(参加中)</join>
+ <member>参加者</member>
+ <say>発言</say>
+ <out>離脱</out>
+ <reload>リロード</reload>
+ <spliter> : </spliter>
+ <said> &gt; </said>
+ <announce>※</announce>
+ <close>×</close>
+ <name>名前</name>
+ <color>文字の色</color>
+ <line>行数</line>
+ <reloadsec>自動リロード間隔</reloadsec>
+ <noreload>手動</noreload>
+ <autopaste>オートペースト</autopaste>
+ <backup>バックアップ</backup>
+ <pastlog>過去ログ</pastlog>
+ <view>閲覧</view>
+<!--
+ *adminname - あなたの名前
+ RSS などで表示されます
+ -->
+ <adminname>　</adminname>
+<!--
+ *rssdesc - RSS の説明部分
+ -->
+ <rssdesc>ぺたちゃ2 の最新の発言です。</rssdesc>
+<!--
+ *innormal - システム発言 (参加)
+ {name} は参加者の名前に置換されます、outnormal, outtimeout も同様です
+ -->
+ <systemname>SYSTEM</systemname>
+ <systemcid>000000</systemcid>
+ <systemcolor>dimgray</systemcolor>
+ <innormal>{name} さんが参加しました。</innormal>
+<!--
+ *outnormal - システム発言 (離脱)
+ -->
+ <outnormal>{name} さんが離脱しました。</outnormal>
+<!--
+ *outtimeout - システム発言 (タイムアウト)
+ -->
+ <outtimeout>{name} さんがタイムアウトで離脱しました。</outtimeout>
+<!--
+ *link - 他ページへのリンク
+ chat.am.cute.bz へのリンクは消しても構いません
+ -->
+ <link url="../">戻る</link>
+ <link url="http://chat.am.cute.bz/help/">ヘルプ</link>
+ <link url="http://chat.am.cute.bz/">ぺたちゃ2</link>
+<!--
+ *message - 通常アナウンス
+ -->
+ <message type="chat_announce">離脱 (退室) する時は「離脱」と発言して下さい。</message>
+ <message type="entrance_announce">名前を入力して発言すると、参加 (入室) できます。</message>
+ <message type="entrance_announce_ajax">負荷軽減のため、リロードにはリロードボタンをお使い下さい。(このページ自体を更新しないで下さい。)</message>
+
+<!--
+ *error - エラーアナウンス
+ -->
+ <error type="malformed_cid">不正な cid です。</error>
+ <error type="method_not_post">不正なメソッドです。</error>
+ <error type="empty_name">名前が入力されていません。</error>
+ <error type="long_name">名前が長過ぎます。</error>
+ <error type="long_message">本文が長過ぎます。</error>
+ <error type="sql_error">データベースの処理中にエラーが発生しました。</error>
+ <error type="unknown_command">認識できないコマンドです。</error>
+ <error type="failed_xsl_load">XSL ファイルの読み込みに失敗しました。ページを開き直して下さい。</error>
+ <error type="failed_xml_load">通信に失敗しました。</error>
+ <error type="copy_not_ready">まだコピーの準備ができていません。</error>
+ <error type="invalid_xml_filename">日付の指定にミスがあります。</error>
+ <error type="ex">予期せぬエラーです。</error>
+</text>
+
+<!--
+ *deny - アクセス制限まとめ
+ 主にボットやスパムなどをはじくためのもので、非常にカジュアルなアクセス制限です
+ アクセスする側にある程度の知識と情熱がある場合はあまり意味をなしません
+ 特定の個人に制限をかけたい場合は別途 .htaccess などで個別に設定して下さい
+ -->
+<deny>
+<!--
+ *cid - 制限する簡易 ID
+ 発言ログの cid ([0-9a-f] からなる六文字の文字列) を参照して下さい
+ -->
+ <cid>000000</cid>
+ <cid>ffffff</cid>
+
+<!--
+ *host - 制限するリモートホストまたはアドレス (部分一致)
+ 設置サーバのアクセスログを参照して下さい
+ 例示したホストは robots.txt で対策した方がスマートかもしれません
+ -->
+ <host>.googlebot.com</host>
+ <host>.naver.jp</host>
+ <host>.search.msn.com</host>
+
+<!--
+ *ua - 制限するユーザエージェント (部分一致)
+ 設置サーバのアクセスログを参照して下さい
+ -->
+ <ua>http://</ua>
+ <ua>bot/</ua>
+
+<!--
+ *ref - 制限するリファラ (部分一致)
+ 設置サーバのアクセスログを参照して下さい
+ はじいたところでリファラスパムを諦めてくれるかどうかは不明です
+ -->
+ <ref>tinyurl.com/muryou</ref>
+ <ref>jouhou</ref>
+ <ref>kasegeru</ref>
+
+</deny>
+<!--
+ *path - パスまとめ
+ 基本的に変更の必要はありません
+ -->
+<path>
+ <errorlog    desc="エラーログ"        >error_log.txt</errorlog>
+ <db          desc="データベース"      >pt2.sqlite</db>
+ <dbhost      desc="リモホのキャッシュ">pt2host.sqlite</dbhost>
+ <dbsetup     desc="DB セットアップ用" >db_setup.php</dbsetup>
+
+ <dir         desc="ディレクトリ">
+ <logs        desc="ログ"              >./logs/</logs>
+  <templates  desc="テンプレート"      >./templates/</templates>
+  <library    desc="ライブラリ"        >./lib/</library>
+  <session    desc="セッション"        >./sessions/</session>
+  <resources  desc="外部ファイル"      >./resources/</resources>
+ </dir>
+
+ <xsl         desc="出力テンプレート">
+  <base       desc="デフォルト"        >base.xsl</base>
+  <rss        desc="RSS"               >rss.xsl</rss>
+  <ajax       desc="Ajax"              >log.xsl</ajax>
+ </xsl>
+
+ <swf         desc="Flash ファイル">
+  <copy       desc="コピー用"          >Peta2Copy.swf</copy>
+  <paste      desc="貼り付け用"        >Peta2Paste.swf</paste>
+ </swf>
+
+</path>
+<!--
+ *vars - 定数に近い変数まとめ
+ 基本的に変更の必要はありません
+ -->
+<vars>
+ <sesname     desc="セッション名"      >pt2</sesname>
+ <sesdays     desc="セッション期限(日)">30</sesdays>
+ <hosttable   desc="リモホのテーブル名">pt2host</hosttable>
+ <logtable    desc="ログのテーブル名"  >pt2log</logtable>
+ <membertable desc="参加者のテーブル名">pt2member</membertable>
+ <misctable   desc="その他のテーブル名">pt2misc</misctable>
+ <dateformat  desc="日付のフォーマット">Y.m.d</dateformat>
+ <timeformat  desc="時刻のフォーマット"> H:i:s</timeformat>
+ <namemax     desc="名前の長さの最大値">32</namemax>
+ <chatmax     desc="発言の長さの最大値">1024</chatmax>
+ <envmax      desc="env の長さの最大値">256</envmax>
+</vars>
+
+</conf>

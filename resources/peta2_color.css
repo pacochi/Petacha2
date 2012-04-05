@@ -1,0 +1,93 @@
+body{
+	color:#000;
+	background-color:#FEF;
+	}
+
+a{
+
+	}
+
+a:link{
+	color:#008;
+	}
+
+a:visited{
+	color:#608;
+	}
+
+a:active, a:hover{
+	background-color:#FEF;
+	}
+
+h1{
+	color:#400;
+	}
+
+div#body{
+	background-color:#FDE;
+	}
+
+span.date{
+	color:#868;
+	}
+
+p.alert{
+	color:#E00;
+	border-color:#E00;
+	background-color:#FEE;
+	}
+
+p.note{
+	color:#807;
+	border-color:#F8E;
+	background-color:#FEF;
+	}
+
+form#view{
+	background-color:#FDE;
+	border-color:#F8E;
+	}
+
+label.bn:hover{
+	background-color:#FEF;
+	}
+
+label.colorpick{
+	color:#008;
+	}
+
+label.colorpick:hover{
+	background-color:#FEF;
+	}
+
+input, select{
+	color:#000;
+	background-color:#FEF;
+	border-color:#000;
+	}
+
+button{
+	color:ButtonText;
+	background-color:ButtonFace;
+	border-color:ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
+	}
+
+button[disabled]{
+	color:ButtonShadow;
+	}
+
+button:hover{
+	background-color:ButtonHighlight;
+	}
+
+button[disabled]:hover{
+	background-color:ButtonFace;
+	}
+
+option{
+	background-color:#FEF;
+	}
+
+div#picker{
+	border-color:#000;
+	}
