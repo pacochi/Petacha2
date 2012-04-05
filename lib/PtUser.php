@@ -63,6 +63,13 @@ class PtUser {
 
 	}
 
+	# 今日のログ表示モードかどうかチェック
+	public function isTodayLogMode() {
+
+		return(isset($this->q['today']));
+
+	}
+
 	# クライアント側で XSLT できるかどうかチェック
 	public function isClientXSLTMode() {
 

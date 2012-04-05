@@ -94,7 +94,7 @@ PT2.S.init = function() {
 	 .F.setAutoPaste()
 	 .F.setOutButton()
 	 .F.disableButton()
-	 .C.adjustChatHeight()
+	 .C.setChatAdjuster()
 	 .C.addLogViewer()
 	 .C.processChatLink()
 	 .C.processBNElm()
@@ -463,6 +463,18 @@ PT2.F.enableButton = function() {
 
 };
 
+// リサイズ時に発言一覧の高さ調整
+PT2.C.setChatAdjuster = function() {
+
+	if (typeof(document.ontouchstart) != 'undefined') return(PT2);
+
+	$(window).resize(PT2.C.adjustChatHeight);
+	PT2.C.adjustChatHeight();
+
+	return(PT2);
+
+};
+
 // 発言一覧の高さを調整する
 PT2.C.adjustChatHeight = function() {
 
@@ -648,8 +660,10 @@ PT2.C.showPastLog = function(logs) {
 	var logText = '';
 
 	PT2.dPast.empty().tag('div').attr('id', 'pastcontainer').html(logs).gat();
+	var pastcontainer = $('#pastcontainer');
+	$('li', pastcontainer).remove();
 
-	$('p', $('#pastcontainer')).each(function() {
+	$('p', pastcontainer).each(function() {
 
 		if (this.id) this.id = 'past-' + this.id;
 
@@ -681,6 +695,13 @@ PT2.C.addLog = function(logs) {
 	// 参加状態を更新
 	PT2.joinText = $('li.self', PT2.uMember).size() ? PT2.text.join : '';
 	PT2.h1.text(PT2.text.title + PT2.joinText);
+	// 時系列修正
+	var tmpFirst = PT2.dTmp.children().eq(0).attr('id');
+	tmpFirst = parseInt((tmpFirst) ? tmpFirst.substr(1) : '');
+	var chatLast = $('p.chat:last', PT2.dChat).attr('id');
+	chatLast = parseInt((chatLast) ? chatLast.substr(1) : '');
+	if (!isNaN(tmpFirst) && !isNaN(chatLast) && tmpFirst < chatLast)
+	 $('p.chat', PT2.dChat).remove();
 	// 追加
 	PT2.dTmp.children().hide().appendTo(PT2.dChat).fadeIn('normal');
 	// 切り落とし
@@ -698,6 +719,7 @@ PT2.X.loadConf = function() {
 	$.ajax({
 		url: PT2.confFile,
 		dataType: 'xml',
+		cache: false,
 		success: PT2.X.setConf,
 		error: function(req, stat, err){
 
@@ -766,6 +788,7 @@ PT2.X.loadXSL = function() {
 	$.ajax({
 		url: PT2.xslFile,
 		dataType: 'xml',
+		cache: false,
 		success: PT2.X.setXSL,
 		error: PT2.A.xslError
 	});
@@ -845,15 +868,11 @@ PT2.X.loadLog = function(method, reset) {
 // 過去ログ取得
 PT2.X.loadPastLog = function() {
 
-	var year = parseInt(PT2.input.year.val(), 10);
-	var mon = parseInt(PT2.input.month.val(), 10);
-	var day = parseInt(PT2.input.day.val(), 10);
+	var year = '' + ((parseInt(PT2.input.year.val(), 10) % 2000) + 2000);
+	var mon = '0' + parseInt(PT2.input.month.val(), 10);
+	var day = '0' + parseInt(PT2.input.day.val(), 10);
 
-	if (year < 100) year += 2000;
-	if (mon < 10) mon = '0' + mon;
-	if (day < 10) day = '0' + day;
-
-	var logName = '' + year + mon + day;
+	var logName = year + mon.substr(mon.length - 2) + day.substr(day.length - 2);
 
 	if (!logName.match(/^\d{8}$/)) {
 
@@ -861,9 +880,19 @@ PT2.X.loadPastLog = function() {
 
 	} else {
 
+		var today = new Date();
+		year = '' + today.getFullYear();
+		mon = '0' + (today.getMonth() + 1);
+		day = '0' + today.getDate();
+		today = year + mon.substr(mon.length - 2) + day.substr(day.length - 2);
+
+		// 日付が今日ならリアルタイム生成のログを読みに行く
+		var url = (logName == today) ? PT2.URL + '?a=2&today=1' : PT2.logDir + logName + '.xml';
+
 		$.ajax({
-			url: PT2.logDir + logName + '.xml',
+			url: url,
 			dataType: 'xml',
+			cache: false,
 			success: function (data) { PT2.X.xslt(data, 'past'); },
 			error: PT2.A.xmlError
 		});

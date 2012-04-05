@@ -79,8 +79,11 @@ class PtLog {
 	# ログ読み出し
 	private function load() {
 
-		$result = $this->SQLQuery("SELECT * FROM %s WHERE id > %d ORDER BY id DESC LIMIT %d;",
+		if ($this->user->isTodayLogMode()) $result = $this->SQLQuery("SELECT * FROM %s WHERE date = '%s' ORDER BY id DESC;",
+		 $this->tLog, PtSQL::R_ARRAY, date($this->fDate, time()));
+		 else $result = $this->SQLQuery("SELECT * FROM %s WHERE id > %d ORDER BY id DESC LIMIT %d;",
 		 $this->tLog, PtSQL::R_ARRAY, $this->user->lastId, $this->user->line);
+
 		if ($result === false) return(false);
 
 		# 新着ログなかったらそのまま帰る

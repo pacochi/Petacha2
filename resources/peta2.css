@@ -97,6 +97,11 @@ p{
 	word-wrap:break-word;
 	}
 
+p.chat{
+	border-bottom:1px inset;
+	margin:0.5em 0px;
+	}
+
 p.dummybn{
 	display:none;
 	}
@@ -200,6 +205,7 @@ label.bn, em.bn{
 	border-width:1px 0px;
 	border-style:solid;
 	font-style:normal;
+	letter-spacing:-0.1em;
 	}
 
 label.copied{
@@ -350,7 +356,7 @@ div#chat{
 }
 
 /* スマートフォン */
-@media only screen and (max-device-width: 480px) {
+@media only screen and (min-device-width : 320px) and (max-device-width : 800px) {
 
 div#body{
 	margin:0px;
