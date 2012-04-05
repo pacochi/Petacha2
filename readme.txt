@@ -1,4 +1,4 @@
-‚Ø‚½‚¿‚á2 ver. 111119_0 (beta)
+‚Ø‚½‚¿‚á2 ver. 111202_0 (beta)
 
 ¡ŠT—v
 
@@ -55,6 +55,7 @@ petacha2
 „¥index.php
 „¥db_setup.php (İ’uŒã‚ÍƒT[ƒo‚©‚çíœ‚µ‚Ä‰º‚³‚¢)
 „¥conf.xml
+„¥htaccess.txt
 „¤readme.txt
 
 
@@ -126,6 +127,11 @@ resources/jquery-1.6.1.min.js ‚Æ resources/activity.js ‚ğ“Ç‚İ‚Ş‚æ‚¤‚É‚µ‚Ä‰º‚³‚
 resources/activity.js ‚Ì containerId ‚ğ‚©‚Ô‚ç‚È‚¢‚æ‚¤•ÏX‚µ‚Äƒ`ƒƒƒbƒg‚Ì”‚¾‚¯“Ç‚İ‚Ş‚©A
 resources/activities.js ‚ğ—˜—p‚µ‚Ä‰º‚³‚¢B (g‚¢•û‚ÍƒXƒNƒŠƒvƒg‚ÌƒRƒƒ“ƒg‚É‚ ‚è‚Ü‚·B)
 
+ IE ‚Å‚¾‚¯ƒ`ƒƒƒbƒg‚ª‚¤‚Ü‚­“®‚©‚È‚¢•ñ‚ª‚ ‚Á‚½ê‡
+XML ƒtƒ@ƒCƒ‹‚Æ XSL ƒtƒ@ƒCƒ‹‚Ì MIME type ‚ªAƒT[ƒo‘¤‚Åİ’è‚³‚ê‚Ä‚¢‚È‚¢‚Ì‚©‚à‚µ‚ê‚Ü‚¹‚ñB
+‚»‚Ìê‡Apetacha2 ƒfƒBƒŒƒNƒgƒŠ‚Ì htaccess.txt ‚ğ .htaccess ‚ÉƒŠƒl[ƒ€‚µ‚Ä‚İ‚Ä‰º‚³‚¢B
+(ƒtƒ@ƒCƒ‹–¼‚Ìæ“ª‚É "." ‚ğ•t‚¯‚ç‚ê‚È‚¢ê‡AƒAƒbƒvƒ[ƒh‚µ‚Ä‚©‚ç•ÏX‚µ‚Ä‰º‚³‚¢B)
+
 ¡ƒ‰ƒCƒZƒ“ƒX
 
 “¯«‚³‚ê‚Ä‚¢‚é jQuery (resources/jquery-1.6.1.min.js) ‚ÍA
@@ -147,6 +153,9 @@ kaskat+am@gmail.com
 
 
 ¡ƒo[ƒWƒ‡ƒ“—š—ğ
+
+ ver. 111202_0 (beta)
+XML ‚Ì MIME type C³—p htaccess.txt ‚ğ’Ç‰Á
 
  ver. 111119_0 (beta)
 activity.js ‚ğ‚¿‚å‚Á‚ÆC³

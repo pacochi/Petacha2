@@ -1,0 +1,1 @@
+AddType "application/xml; charset=utf8" xml xsl
