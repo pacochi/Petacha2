@@ -24,6 +24,12 @@
  -->
  <trimurl>on</trimurl>
 
+<!--
+ *reloadcount - リロードボタンにリロードまでの秒数を表示する
+ JavaScript から参照される値です
+ -->
+ <reloadcount>on</reloadcount>
+
 </option>
 
 <!--

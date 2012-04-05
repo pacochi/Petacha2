@@ -1,4 +1,4 @@
-ぺたちゃ2 ver. 110518_0 (beta)
+ぺたちゃ2 ver. 110614_1 (beta)
 
 ■概要
 
@@ -30,7 +30,7 @@ petacha2
 │├log.xsl
 │└rss.xsl
 ├resources
-│├jquery-1.4.2.min.js
+│├jquery-1.6.1.min.js
 │├jquery.tag.js
 │├peta2.js
 │├peta2.css
@@ -101,7 +101,7 @@ http://chat.am.cute.bz/help/
 
 ■ライセンス
 
-同梱されている jQuery (resources/jquery-1.4.2.min.js) は、
+同梱されている jQuery (resources/jquery-1.6.1.min.js) は、
 MIT ライセンスと GPL のデュアル・ライセンスです。
 http://jquery.org/license/
 
@@ -120,6 +120,15 @@ kaskat+am@gmail.com
 
 
 ■バージョン履歴
+
+□ver. 110614_1 (beta)
+IE9 で RSS がフィード扱いされていなかったのを修正
+
+□ver. 110614_0 (beta)
+IE9 で出るエラーをいくつか修正
+IE7 でも使えるようになったかも
+リロードカウンターの表示をオプション化
+RSS の Content-Type を application/xml に変更
 
 □ver. 110518_0 (beta)
 パーミッション変更時のエラーが出にくいように修正

@@ -162,7 +162,7 @@ class PtPage {
 		# RSS
 		if ($this->user->isRSSMode()) {
 
-			header("Content-Type: application/rss+xml" . (($charset && $charset != 'pass') ? "; charset={$charset}" : ''));
+			header("Content-Type: application/xml" . (($charset && $charset != 'pass') ? "; charset={$charset}" : ''));
 			return;
 
 		}

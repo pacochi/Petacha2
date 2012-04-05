@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:php="http://php.net/xsl" exclude-result-prefixes="php xsl" version="1.0" >
 <xsl:output method="xml" indent="yes" encoding="UTF-8" />
 <xsl:template match="/logs">
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rss="http://purl.org/rss/1.0/">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://purl.org/rss/1.0/">
   <channel rdf:about="{text/rssurl}">
     <title><xsl:value-of select="text/title" /></title>
     <link><xsl:value-of select="text/scripturl" /></link>

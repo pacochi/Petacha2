@@ -20,6 +20,7 @@ PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dI
 PT2.xslFile = './templates/log.xsl';
 PT2.copySwfFile = './resources/Peta2Copy.swf';
 PT2.logDir = './logs/';
+PT2.reloadCountOption = 'on';
 PT2.text = {
  title: 'ぺたちゃ2',
  join: '(参加中)',
@@ -123,6 +124,10 @@ PT2.S.clipboardData = function() {
 
 // window.XSLTProcessor の代替を作る
 PT2.S.XSLTProcessor = function() {
+
+	// IE7 で XSLT できない、原因はまだ特定してない
+	if (typeof(document.documentMode) != 'number' || document.documentMode < 8)
+	 return(null);
 
 	var xslt = function() {};
 	xslt.prototype.xsl = null;
@@ -336,7 +341,8 @@ PT2.F.setReloadTimer = function() {
 	} else {
 
 		if (PT2.reloadTimer) clearTimeout(PT2.reloadTimer);
-		PT2.input.reload.text(PT2.text.reload + PT2.text.spliter + PT2.text.noreload);
+		PT2.input.reload.text(PT2.text.reload
+		 + ((PT2.reloadCountOption == 'on') ? PT2.text.spliter + PT2.text.noreload : ''));
 
 	}
 
@@ -365,6 +371,8 @@ PT2.F.countDownTimer = function() {
 
 // リロード残り秒数を表示
 PT2.F.drawReloadCount = function() {
+
+	if (PT2.reloadCountOption != 'on') return;
 
 	var count = PT2.text.spliter
 	 + parseInt(PT2.reloadCounter / 100, 10)
@@ -710,6 +718,8 @@ PT2.X.setConf = function(data) {
 
 	PT2.logDir = conf.find('path>dir>logs').text();
 
+	PT2.reloadCountOption = conf.find('option>reloadcount').text();
+
 	// 設定値を元にいじる
 	PT2.S.init();
 	// XSL も今のうちつっこんどく
@@ -720,7 +730,12 @@ PT2.X.setConf = function(data) {
 // テンプレートファイルの読み込み
 PT2.X.loadXSL = function() {
 
-	if (PT2.input.a && PT2.input.a.val() < 2) return;
+	if (PT2.input.a && PT2.input.a.val() < 2) {
+
+		PT2.F.enableButton();
+		return;
+
+	}
 
 	$.ajax({
 		url: PT2.xslFile,
@@ -849,7 +864,7 @@ PT2.X.xslt = function(data, type) {
 
 	if (!PT2.logXSL) {
 
-		PT2.A.alert(PT2.text.error.failed_xsl_load);
+		PT2.A.xslError();
 		return;
 
 	}
@@ -862,9 +877,27 @@ PT2.X.xslt = function(data, type) {
 	// Fx 2.0 だとここら辺で style 要素とかが欠落する
 	var logs = proc.transformToFragment(data, document);
 
+	// chrome でうまく XSLT できないときがあった
+	if (!logs) {
+
+		PT2.A.xmlError();
+		return;
+
+	}
+
 	// IE は返り値が文字列になる
-	if (typeof(logs) == 'string') logs = $(logs);
-	 else logs = $(logs.lastChild).children();
+	if (typeof(logs) == 'string') {
+
+		// xmlns とかがついてると html() が使えない
+		// 文字列のまま渡すことにした
+		logs = logs.replace(/<html[^>]+>(.*)<\/html>/m, "$1");
+
+	} else {
+
+		if (logs.lastChild.tagName == 'html') logs = $(logs.lastChild).children();
+		 else logs = $(logs).children();
+
+	}
 
 	if (type == 'past') PT2.C.showPastLog(logs);
 	 else PT2.C.addLog(logs);
@@ -926,10 +959,10 @@ PT2.X.addConf = function(xml, doc) {
 
 	for (var tag in PT2.text) {
 
-		if (typeof(PT2.text[tag]) == 'string')
+		if (typeof(PT2.text[tag]) == 'string') 
 		 dText.append($('<' + tag + ' />', doc).text(PT2.text[tag]));
 		 else for (var type in PT2.text[tag])
-		  dText.append($('<' + tag + ' />', doc).attr('type', type).text(PT2.text[tag][type]));
+		 dText.append($('<' + tag + ' />', doc).attr('type', type).text(PT2.text[tag][type]));
 
 	}
 
@@ -1045,15 +1078,15 @@ PT2.A.addAlert = function(txt) {
 };
 
 // 可能ならチャット画面にアラートを出す
-PT2.A.alert = function($message) {
+PT2.A.alert = function(message) {
 
 	if (PT2.dChat) {
 
-		PT2.A.addAlert($message).C.scrollToLatest();
+		PT2.A.addAlert(message).C.scrollToLatest();
 
 	} else {
 
-		alert($message);
+		alert(message);
 
 	}
 
