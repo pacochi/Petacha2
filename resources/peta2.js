@@ -12,6 +12,7 @@ if (typeof(window.PT2) == 'undefined') { // タブ省略
 // インスタンス化とかしないで直に使うおもちゃ箱
 window.PT2 = {};
 // conf.xml 読む前に決めること
+PT2.version = 111212; // よく変え忘れるけど気にしないでね
 PT2.confFile = './conf.xml';
 PT2.URL = location.href.replace(/[#\?].*$/, '');
 PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dID：|検証ID：|ﾀｰﾝ\d-\d：|セットID：)\d+/;
@@ -74,6 +75,7 @@ PT2.dTmp = null;
 PT2.dPast = null;
 PT2.fSay = null;
 PT2.fView = null;
+PT2.exSelf = null;
 PT2.input = {};
 PT2.S = {}; // スタートとかセットアップとか
 PT2.F = {}; // フォームとか
@@ -112,12 +114,17 @@ PT2.S.clipboardData = function() {
 	clip.getData = null;
 	clip.setData = null;
 
-	PT2.body.tag('object').attr({ id: 'copy', type: 'application/x-shockwave-flash', data: PT2.copySwfFile })
-	  .tag('param').attr({ name: 'wmode', value: 'transparent' }).gat()
-	 .gat();
+	return(clip);
 
-	PT2.copySwf = $('#copy');
-	PT2.copySwf.width(1);
+};
+
+// 拡張機能利用時に使う
+PT2.S.clipboardDataEx = function() {
+
+	var clip = {};
+	clip.swf = true;
+	clip.getData = true;
+	clip.setData = null;
 
 	return(clip);
 
@@ -173,7 +180,14 @@ PT2.S.saveVars = function() {
 		var plugin = (navigator.mimeTypes[flash]) ? navigator.mimeTypes[flash].enabledPlugin : null;
 		var version = (plugin && plugin.description) ? plugin.description.split(' ').slice(-2, -1) : 0;
 
-		if (version > 10) PT2.clipboardData = PT2.S.clipboardData();
+		if (version > 10) {
+
+			// Chrome はページのスクリプトにちょっかい出せないから DOM にちょっかい
+			// Firefox は拡張機能の方で PT2.S.clipboardData を PT2.S.clipboardDataEx に挿げ替えてる
+			PT2.clipboardData = (PT2.input.m.hasClass('apchrome')) ? PT2.S.clipboardDataEx() : PT2.S.clipboardData();
+			PT2.P.addCopySwf();
+
+		}
 
 	}
 
@@ -401,7 +415,7 @@ PT2.F.setAutoPaste = function() {
 	PT2.input.autopaste = $('input#autopaste');
 	PT2.input.backup = $('input#backup');
 	PT2.input.reload.width(PT2.dWrite.width() * 0.4);
-	PT2.input.m.focus(PT2.P.paste);
+	if (!PT2.input.m.hasClass('apchrome')) PT2.input.m.focus(PT2.P.paste);
 
 	return(PT2);
 
@@ -1028,6 +1042,21 @@ PT2.X.addConf = function(xml, doc) {
 
 };
 
+// コピー用 swf を呼び出す
+// PT2.S.clipboardData から移動した
+PT2.P.addCopySwf = function() {
+
+	if (PT2.copySwf) return;
+
+	PT2.body.tag('object').attr({ id: 'copy', type: 'application/x-shockwave-flash', data: PT2.copySwfFile })
+	  .tag('param').attr({ name: 'wmode', value: 'transparent' }).gat()
+	 .gat();
+
+	PT2.copySwf = $('#copy');
+	PT2.copySwf.width(1);
+
+};
+
 // swf の準備ができた時に呼ばれる
 PT2.P.registerCopyFunc = function() {
 
@@ -1087,6 +1116,16 @@ PT2.P.paste = function() {
 
 	if (PT2.input.m.val() != '' || !PT2.input.autopaste.is(':checked')) return(PT2);
 
+	if (typeof(PT2.clipboardData.getData) == 'function') PT2.P.pasteIE();
+	 else if (PT2.exSelf) PT2.exSelf.postMessage({ type: 'getClip' });
+
+	return(PT2);
+
+};
+
+// ペースト (IE)
+PT2.P.pasteIE = function() {
+
 	//var data = '' + PT2.clipboardData.getData('Text');
 	var data = '' + window.clipboardData.getData('Text');
 
@@ -1099,7 +1138,26 @@ PT2.P.paste = function() {
 
 	}
 
-	return(PT2);
+};
+
+// ペースト (Firefox 拡張)
+PT2.P.pasteFx = function(data) {
+
+	if (data != '' && !data.match(/[\r\n]/) && data.match(PT2.BNRegExp)) {
+
+		PT2.input.m.val(data);
+		PT2.input.backup.val(data);
+
+		PT2.exSelf.postMessage({ type: 'clearClip' });
+
+	}
+
+};
+
+// ペースト (Chrome 拡張)
+PT2.P.pasteCr = function() {
+
+// 拡張のとこからここにアクセスできなかったから使ってない
 
 };
 
