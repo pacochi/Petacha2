@@ -7,14 +7,37 @@ class PtSQL {
 	const R_BOOLEAN = 1; # 返り値が真偽
 	const R_STRING = 2; # 返り値が文字列
 	const R_ARRAY = 3; # 返り値が配列
+	const EX_SQLITE = 'sqlite'; # SQLite の拡張モジュール名
+	const EX_PDO = 'pdo_sqlite'; # PDO SQLite の拡張モジュール名
 	private $queryStr; # クエリ格納場所
 	private $errorStr; # エラー格納場所
-	private $db; # SQLite データベース
+	private $db; # データベース
+	private $dbType; # データベースの種類 (sqlite, pdo_sqlite)
 
 	# コンストラクタ
-	public function __construct(&$db) {
+	public function __construct($dbFile) {
+
+		# PHP5.4 で sqlite が消えたから PDO で代替
+		if (extension_loaded(self::EX_SQLITE)) {
+
+			$db = new SQLiteDatabase($dbFile);
+			$dbType = self::EX_SQLITE;
+
+		} elseif (extension_loaded(self::EX_PDO)) {
+
+			$db = new PDO("sqlite:{$dbFile}",'','');
+			$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$dbType = self::EX_PDO;
+
+		} else {
+
+			$this->addError('SQLite extension is not loaded');
+			return(true);
+
+		}
 
 		$this->db = $db;
+		$this->dbType = $dbType;
 
 		return(true);
 
@@ -39,44 +62,34 @@ class PtSQL {
 		array_unshift($args, $table);
 		$this->queryStr = vsprintf($query, $args);
 
-		switch ($type) {
-
-		case self::R_BOOLEAN :
-
-			$result = $this->queryExec($this->queryStr);
-			break;
-
-		case self::R_STRING :
-
-			$result = $this->singleQuery($this->queryStr);
-			break;
-
-		case self::R_ARRAY :
-
-			$result = $this->arrayQuery($this->queryStr);
-			break;
-
-		default :
-
-			$result = $this->addError('invalid type');
-
-		}
-
-		return($result);
+		if ($this->dbType == self::EX_SQLITE) return($this->querySQlite($this->queryStr, $type));
+		 else return($this->queryPDO($this->queryStr, $type));
 
 	}
 
 	# トランザクションはじめ
 	public function beginTransaction() {
 
-		$this->db->queryExec('BEGIN TRANSACTION;');
+		$query = 'BEGIN TRANSACTION;';
+		if ($this->dbType == self::EX_SQLITE) $this->db->queryExec($query);
+		 else $this->db->exec($query);
 
 	}
 
 	# トランザクションおわり
 	public function commitTransaction() {
 
-		$this->db->queryExec('COMMIT TRANSACTION;');
+		$query = 'COMMIT TRANSACTION;';
+		if ($this->dbType == self::EX_SQLITE) $this->db->queryExec($query);
+		 else $this->db->exec($query);
+
+	}
+
+	# 文字列のエスケープ
+	public function escape($str) {
+
+		if ($this->dbType == self::EX_SQLITE) return(sqlite_escape_string($str));
+		 else return(preg_replace("/'/", "''", $str));
 
 	}
 
@@ -102,6 +115,68 @@ class PtSQL {
 
 		# 行数がかさむのでここで false を返しておく
 		return(false);
+
+	}
+
+	# PDO SQLite (SQLite3) を使う
+	private function queryPDO($query, $type) {
+
+		try{
+
+			if ($type == self::R_BOOLEAN) {
+
+				$this->db->exec($query);
+				# そのままの返り値だと作用した行数を返すみたい
+				$result = true;
+
+			} else {
+
+				$res = $this->db->query($query);
+
+				if ($type == self::R_ARRAY)
+				 $result = $res->fetchAll(PDO::FETCH_ASSOC);
+				 else $result = strval($res->fetchColumn());
+
+				$res->closeCursor();
+			}
+
+		} catch(PDOException $error) {
+
+			return($this->addError("{$error->getMessage()} - {$query}"));
+
+		}
+
+		return($result);
+
+	}
+
+	# SQlite を使う
+	private function querySQlite($query, $type) {
+
+		switch ($type) {
+
+		case self::R_BOOLEAN :
+
+			$result = $this->queryExec($this->queryStr);
+			break;
+
+		case self::R_STRING :
+
+			$result = $this->singleQuery($this->queryStr);
+			break;
+
+		case self::R_ARRAY :
+
+			$result = $this->arrayQuery($this->queryStr);
+			break;
+
+		default :
+
+			$result = $this->addError('invalid type');
+
+		}
+
+		return($result);
 
 	}
 

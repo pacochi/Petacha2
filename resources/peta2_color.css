@@ -47,8 +47,15 @@ p.note{
 	}
 
 form#view{
+	background-color:#F8E;
+	}
+
+div#past{
 	background-color:#FDE;
-	border-color:#F8E;
+	}
+
+p.logdate{
+	background-color:#FDE;
 	}
 
 label.bn:hover{

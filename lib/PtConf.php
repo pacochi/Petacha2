@@ -85,43 +85,38 @@ class PtConf {
 		$addr = getenv('REMOTE_ADDR');
 		$host = '';
 		$tHost = self::S('vars/hosttable');
-		$db = new SQLiteDatabase(self::S('path/dir/logs') . self::S('path/dbhost'));
+		# 既に PtSQL.php が呼ばれている
+		$SQL = new PtSQL(self::S('path/dir/logs') . self::S('path/dbhost'));
 
 		# 24時間経ったデータを消す
 		$ctime = time() - 86400;
-		$db->queryExec('BEGIN TRANSACTION;');
-		$query = sprintf("SELECT addr FROM %s WHERE utime < '%d';", $tHost, $ctime);
-		$result = $db->arrayQuery($query, SQLITE_ASSOC);
+		$SQL->beginTransaction();
 
-		if ($result === false) PtUtil::debug(sqlite_error_string($db->lastError) . " - {$query}");
-		 elseif (count($result) > 0) foreach ($result as $line) {
+		$result = $SQL->query(array("SELECT addr FROM %s WHERE utime < '%d';",
+		 $tHost, PtSQL::R_ARRAY, $ctime));
 
-			$query = sprintf("DELETE FROM %s WHERE addr = '%s';", $tHost, $line['addr']);
-			if (!$db->queryExec($query, $error)) PtUtil::debug("{$error} - {$query}");
-
-		}
+		if ($result !== false && count($result) > 0) foreach ($result as $line)
+		 $SQL->query(array("DELETE FROM %s WHERE addr = '%s';",
+		 $tHost, PtSQL::R_BOOLEAN, $line['addr']));
 
 		# データベースにアドレスがあるか調べる
-		$query = sprintf("SELECT host FROM %s WHERE addr = '%s';", $tHost, $addr);
-		$result = $db->unbufferedQuery($query, SQLITE_ASSOC, $error);
-
-		if ($result === false) PtUtil::debug("{$error} - {$query}");
-		 elseif ($result->valid()) $host = $result->fetchSingle();
+		$result = $SQL->query(array("SELECT host FROM %s WHERE addr = '%s';",
+		 $tHost, PtSQL::R_STRING, $addr));
+		$host = ($result) ? $result : '';
 
 		# なかったら問い合わせて追加
 		if (!$host) {
 
 			$host = gethostbyaddr($addr);
-			$query = sprintf("INSERT INTO %s VALUES ('%d', '%s', '%s');",
-			 $tHost, time(), sqlite_escape_string($addr), sqlite_escape_string($host));
-			if (!$db->queryExec($query, $error)) PtUtil::debug("{$error} - {$query}");
+			$SQL->query(array("INSERT INTO %s VALUES ('%d', '%s', '%s');",
+			 $tHost, PtSQL::R_BOOLEAN, time(), $SQL->escape($addr), $SQL->escape($host)));
 
 		}
 
-		$db->queryExec('COMMIT TRANSACTION;');
+		$SQL->commitTransaction();
 
 		# SQLiteDatabase::close() が無いんだけどこれでいいのかな
-		unset($db);
+		unset($SQL);
 
 		self::$_conf->vars->addChild('rhost', $host);
 

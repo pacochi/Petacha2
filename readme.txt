@@ -1,4 +1,4 @@
-ぺたちゃ2 ver. 111214_0 (beta)
+ぺたちゃ2 ver. 120409_0 (beta)
 
 ■概要
 
@@ -13,7 +13,7 @@ PHP5 が使えるサーバで動作します。
 
 ■構成
 
-petacha2
+petacha2 (実際はバージョン名などが付きます)
 ├lib
 │├index.php
 │├PtCommand.php
@@ -51,6 +51,7 @@ petacha2
 │├access_*.log (設置後に作成されます)
 │└htaccess.txt
 ├sessions
+│├.gitkeep (削除しても構いません)
 │└(設置後にセッションファイルが作成されます)
 ├index.php
 ├db_setup.php (設置後はサーバから削除して下さい)
@@ -132,15 +133,24 @@ XML ファイルと XSL ファイルの MIME type が、サーバ側で設定されていないのかもしれ
 その場合、petacha2 ディレクトリの htaccess.txt を .htaccess にリネームしてみて下さい。
 (ファイル名の先頭に "." を付けられない場合、アップロードしてから変更して下さい。)
 
+□Twitter への通知
+http://チャットの設置場所/?f=cid-000000&rss
+上記の URL で、システム発言だけを含んだ RSS が出力されますので、
+RSS を読んで POST するような twitter の bot さんに読んでもらう事で通知が可能になります。
+認証が必要なものは取り入れないポリシーなので、直接通知を POST する機能は付けません。
+どうしても直接 POST したい場合は各自で改造して下さい。
+
 ■ライセンス
 
 同梱されている jQuery (resources/jquery-1.6.1.min.js) は、
 MIT ライセンスと GPL のデュアル・ライセンスです。
 http://jquery.org/license/
+著作権表示などは resources/jquery-1.6.1.min.js の冒頭に書かれています。
 
 同梱されている jQuery Tag プラグイン (resources/jquery.tag.js) も、
 jQuery と同じ MIT ライセンスと GPL のデュアル・ライセンスです。
 http://developmentor.lrlab.to/postal/jquery/jquery.tag.html
+著作権表示などは resources/jquery.tag.js の冒頭に書かれています。
 
 その他は kaska が書いたもので、びしっとしたライセンス条項はありません。
 みんなで使ってね。なかよく使ってね。
@@ -150,9 +160,16 @@ http://developmentor.lrlab.to/postal/jquery/jquery.tag.html
 ■連絡先
 
 kaskat+am@gmail.com
+http://twitter.com/petacha2
 
 
 ■バージョン履歴
+
+□ver. 120409_0 (beta)
+PHP5.4 でも動くように修正
+スクリプトが無効でも過去ログを読める機能を追加
+ログから特定の ID を抽出する機能を追加
+過去ログ表示部分をドラッグで移動できるように変更
 
 □ver. 111214_0 (beta)
 IE8 でオートペーストが無効になる不具合を修正

@@ -12,8 +12,7 @@ class PtLog {
 	private $fDate; # 日付のフォーマット
 	private $fTime; # 時刻のフォーマット
 	private $logsXMLStr; # SimpleXMLElement 作成時に使う文字列
-	private $db; # SQLite データベース
-	private $SQL; # SQL 操作用
+	private $SQL; # SQL 操作用 (データベースもこの中)
 
 	# コンストラクタ
 	public function __construct($user) {
@@ -25,8 +24,7 @@ class PtLog {
 		$this->fDate = PtConf::S('vars/dateformat');
 		$this->fTime = PtConf::S('vars/timeformat');
 		$this->logsXMLStr = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '><logs />';
-		$this->db = new SQLiteDatabase(PtConf::S('path/dir/logs') . PtConf::S('path/db'));
-		$this->SQL = new PtSQL($this->db);
+		$this->SQL = new PtSQL(PtConf::S('path/dir/logs') . PtConf::S('path/db'));
 		$this->data = new SimpleXMLElement($this->logsXMLStr);
 
 		if ($this->validateInput()) {
@@ -47,10 +45,9 @@ class PtLog {
 	}
 
 	# ユーザデータを取得
-	public function getUser(&$user) {
+	public function getUser() {
 
-		$user = $this->user;
-		return(true);
+		return($this->user);
 
 	}
 
@@ -79,12 +76,42 @@ class PtLog {
 	# ログ読み出し
 	private function load() {
 
-		if ($this->user->isTodayLogMode()) $result = $this->SQLQuery("SELECT * FROM %s WHERE date = '%s' ORDER BY id DESC;",
-		 $this->tLog, PtSQL::R_ARRAY, date($this->fDate, time()));
-		 else $result = $this->SQLQuery("SELECT * FROM %s WHERE id > %d ORDER BY id DESC LIMIT %d;",
-		 $this->tLog, PtSQL::R_ARRAY, $this->user->lastId, $this->user->line);
+		switch ($this->user->filter['type']) {
+
+		case 'log' :
+
+			# 過去ログ指定の時は XML ファイルから読む
+			if ($this->user->filter['target'] != 'today') {
+
+				$this->loadPastLog($this->user->filter['target']);
+				return(true);
+
+			} else {
+
+				$result = $this->loadTodayLog();
+
+			}
+
+			break;
+
+		case 'cid' :
+
+				$result = $this->loadCidLog($this->user->filter['target']);
+
+			break;
+
+		default:
+
+				$result = $this->loadNormalLog();
+
+			break;
+
+		}
 
 		if ($result === false) return(false);
+
+		# フィルタ指定表示アナウンス
+		if (!$this->user->isAjaxMode() && $this->user->filter['type'] !== '') $this->addMessage('log_announce');
 
 		# 新着ログなかったらそのまま帰る
 		if (count($result) == 0) return(true);
@@ -93,14 +120,58 @@ class PtLog {
 		$this->makeXML($result, $this->data, true);
 
 		# 初回表示のアナウンス
-		if (!$this->user->isAjaxMode() && !$this->user->isJoined())
+		if (!$this->user->isAjaxMode() && !$this->user->isJoined() && $this->user->filter['type'] === '')
 		 $this->addMessage('entrance_announce');
 
 		return(true);
 	}
 
+	# 指定なしで読み出し
+	private function loadNormalLog() {
+
+		$result = $this->SQLQuery("SELECT * FROM %s WHERE id > %d ORDER BY id DESC LIMIT %d;",
+		 $this->tLog, PtSQL::R_ARRAY, $this->user->lastId, $this->user->line);
+
+		return($result);
+
+	}
+
+	# cid 指定で読み出し
+	private function loadCidLog($cid) {
+
+		$result = $this->SQLQuery("SELECT * FROM %s WHERE cid = '%s' ORDER BY id DESC LIMIT %d;",
+		 $this->tLog, PtSQL::R_ARRAY, $cid, $this->user->line);
+
+		return($result);
+
+	}
+
+	# 今日のログ全部読み出し
+	private function loadTodayLog() {
+
+		$result = $this->SQLQuery("SELECT * FROM %s WHERE date = '%s' ORDER BY id DESC;",
+		 $this->tLog, PtSQL::R_ARRAY, date($this->fDate, time()));
+
+		return($result);
+
+	}
+
+	# 過去の日付のログ読み出し
+	private function loadPastLog($date) {
+
+		$logFile = PtConf::S('path/dir/logs') . $date . '.xml';
+
+		# ログ閲覧時に入室とかしないから addMessage 気にしない
+		if (file_exists($logFile))
+		 $this->data = new SimpleXMLElement($logFile, LIBXML_NOCDATA, true);
+		 else $this->addError('failed_xml_load');
+
+		if (!$this->user->isAjaxMode()) $this->addMessage('log_announce');
+
+	}
+
 	# XML にログを追加
-	private function makeXML($logs, &$xml, $rssdate) {
+	private function makeXML($logs, $xml, $rssdate) {
 
 		foreach ($logs as $line) {
 
@@ -279,7 +350,7 @@ class PtLog {
 		 $body
 		);
 
-		$data = array_map('sqlite_escape_string', $data);
+		$data = array_map(array($this->SQL, 'escape'), $data);
 		$data[] = $ext;
 
 		$result = $this->SQLQuery("INSERT INTO %s VALUES (NULL, %d, '%s', '%s', '%s', '%s', '%s', '%s', %s);",
@@ -306,7 +377,7 @@ class PtLog {
 		 $body
 		);
 
-		$data = array_map('sqlite_escape_string', $data);
+		$data = array_map(array($this->SQL, 'escape'), $data);
 		$data[] = "'system'"; # ext
 
 		$result = $this->SQLQuery("INSERT INTO %s VALUES (NULL, %d, '%s', '%s', '%s', '%s', '%s', '%s', %s);",
@@ -323,7 +394,7 @@ class PtLog {
 		$existCid = false;
 
 		$cid = $this->user->cid;
-		$name = sqlite_escape_string($this->user->name);
+		$name = $this->SQL->escape($this->user->name);
 		$color = $this->user->color;
 
 		# 既にいたら一旦削除
@@ -353,7 +424,7 @@ class PtLog {
 		if ($this->user->isJoined()) {
 
 			$data = array($cid, $name, $color);
-			$data = array_map('sqlite_escape_string', $data);
+			$data = array_map(array($this->SQL, 'escape'), $data);
 			array_unshift($data, time());
 
 			$result = $this->SQLQuery("INSERT INTO %s VALUES (%d, '%s', '%s', '%s');",

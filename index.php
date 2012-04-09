@@ -25,6 +25,7 @@ require_once($libdir . 'PtConf.php');
 PtConf::load($conf);
 
 require_once($libdir . 'PtUtil.php');
+require_once($libdir . 'PtSQL.php');
 PtUtil::silentError();
 PtUtil::checkDBSetup();
 PtConf::addEnv();
@@ -37,7 +38,6 @@ $user = new PtUser();
 if ($user->isDenied()) PtUtil::exit403();
 
 require_once($libdir . 'PtLog.php');
-require_once($libdir . 'PtSQL.php');
 require_once($libdir . 'PtText.php');
 $logs = new PtLog($user);
 

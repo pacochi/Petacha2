@@ -41,7 +41,7 @@ class PtText {
 	}
 
 	# XML に追加
-	public function addXML(&$log) {
+	public function addXML($log) {
 
 		$log->addChild('body');
 

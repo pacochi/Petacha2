@@ -15,7 +15,7 @@ class PtPage {
 	public function __construct($logs) {
 
 		$this->logs = $logs;
-		$this->logs->getUser($this->user);
+		$this->user = $this->logs->getUser();
 
 		$this->selectXSLFile()->setXSL();
 

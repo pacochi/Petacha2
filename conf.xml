@@ -144,6 +144,7 @@
  <message type="chat_announce">離脱 (退室) する時は「離脱」と発言して下さい。</message>
  <message type="entrance_announce">名前を入力して発言すると、参加 (入室) できます。</message>
  <message type="entrance_announce_ajax">負荷軽減のため、リロードにはリロードボタンをお使い下さい。(このページ自体を更新しないで下さい。)</message>
+ <message type="log_announce">日付などを指定したログの閲覧時は、自動リロードが一時的に無効になります。</message>
 
 <!--
  *error - エラーアナウンス
@@ -156,7 +157,8 @@
  <error type="sql_error">データベースの処理中にエラーが発生しました。</error>
  <error type="unknown_command">認識できないコマンドです。</error>
  <error type="failed_xsl_load">XSL ファイルの読み込みに失敗しました。ページを開き直して下さい。</error>
- <error type="failed_xml_load">通信に失敗しました。</error>
+ <error type="failed_xml_load">指定した日付のログは存在しないようです。</error>
+ <error type="failed_php_load">ログの読み込みに失敗しました。</error>
  <error type="copy_not_ready">まだコピーの準備ができていません。</error>
  <error type="invalid_xml_filename">日付の指定にミスがあります。</error>
  <error type="ex">予期せぬエラーです。</error>

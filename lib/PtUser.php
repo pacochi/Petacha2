@@ -15,13 +15,14 @@ class PtUser {
 	private $color = ''; # 色 (加工)
 	private $reload = 0; # リロード秒数 (加工)
 	private $line = 0; # 行数 (加工)
+	private $filter = array(); # フィルタ (加工)
 
 	public $mode = ''; # 'join' 'chat'
 
 	# コンストラクタ
 	public function __construct() {
 
-		$this->loadQuery()->setStat()->setMySelect();
+		$this->loadQuery()->setStat()->setFilter()->setMySelect();
 
 		return(true);
 
@@ -63,12 +64,21 @@ class PtUser {
 
 	}
 
-	# 今日のログ表示モードかどうかチェック
-	public function isTodayLogMode() {
+	# pjax モードかどうかチェック (未使用)
+	public function isPjaxMode() {
 
-		return(isset($this->q['today']));
+		return(getenv('HTTP_X_PJAX') !== false);
 
 	}
+
+	# 今日のログ表示モードかどうかチェック
+	# getFilter() に統合した
+#	public function isTodayLogMode() {
+
+#		return(isset($this->q['today']));
+
+#	}
+
 
 	# クライアント側で XSLT できるかどうかチェック
 	public function isClientXSLTMode() {
@@ -90,6 +100,12 @@ class PtUser {
 		# こまごました処理が加わるかもしれない
 
 		return($this->join);
+
+	}
+
+	# フィルタを取得
+	public function getFilter() {
+
 
 	}
 
@@ -224,9 +240,56 @@ class PtUser {
 		$reloadMax = intval(PtConf::getSelLast('reloadsec'));
 
 		$reload = (isset($q['r']) && is_numeric($q['r'])) ? intval($q['r']) : -1;
-		if ($reload < $reloadMin && isset($_SESSION['reload'])) $reload = $_SESSION['reload'];
-		if ($reload < $reloadMin || $reload > $reloadMax) $reload = intval(PtConf::getSelDefault('reloadsec'));
+		if ($reload != 0 && $reload < $reloadMin && isset($_SESSION['reload'])) $reload = $_SESSION['reload'];
+		if ($reload != 0 && ($reload < $reloadMin || $reload > $reloadMax)) $reload = intval(PtConf::getSelDefault('reloadsec'));
 		$this->reload = $_SESSION['reload'] = $reload;
+
+		return($this);
+
+	}
+
+	# フィルタの設定
+	private function setFilter() {
+
+		$filter = array('type' => '', 'target' => '');
+		$filterStr = (isset($this->q['f'])) ? $this->q['f'] : '';
+		# クローラが来た時用
+		if (isset($this->q['_escaped_fragment_'])) $filterStr = $this->q['_escaped_fragment_'];
+		list($type, $target) = explode('-', $filterStr, 2);
+
+		if (is_string($type) && is_string($target)) switch ($type) {
+
+		case 'log' :
+
+			if (preg_match('/^(today|\d{8})$/', $target)) {
+
+				$filter['type'] = $type;
+				$filter['target'] = $target;
+
+			}
+
+			break;
+
+		case 'cid' :
+
+			if (PtUtil::checkCid($target)) {
+
+				$filter['type'] = $type;
+				$filter['target'] = $target;
+
+			}
+
+			break;
+
+		default:
+			break;
+
+		}
+
+		# 自動リロードを無効に
+		if ($filter['type']) $this->reload = 0;
+
+		$this->filter = $filter;
 
 		return($this);
 

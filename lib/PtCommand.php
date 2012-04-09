@@ -11,7 +11,7 @@ class PtCommand {
 	private $errorStr; # エラー格納場所
 
 	# コンストラクタ
-	public function __construct($cmd, $arg, &$SQL, $cid) {
+	public function __construct($cmd, $arg, $SQL, $cid) {
 
 		$this->cmd = $cmd;
 		$this->arg = $arg;

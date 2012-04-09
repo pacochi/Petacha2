@@ -12,7 +12,7 @@ if (typeof(window.PT2) == 'undefined') { // タブ省略
 // インスタンス化とかしないで直に使うおもちゃ箱
 window.PT2 = {};
 // conf.xml 読む前に決めること
-PT2.version = 111214; // よく変え忘れるけど気にしないでね
+PT2.version = 120409; // よく変え忘れるけど気にしないでね
 PT2.confFile = './conf.xml';
 PT2.URL = location.href.replace(/[#\?].*$/, '');
 PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dID：|検証ID：|ﾀｰﾝ\d-\d：|セットID：)\d+/;
@@ -41,7 +41,8 @@ PT2.text = {
 PT2.text.message = {
  chat_announce: '離脱 (退室) する時は「離脱」と発言して下さい。',
  entrance_announce: '名前を入力して発言すると、参加 (入室) できます。',
- entrance_announce_ajax: '負荷軽減のため、リロードにはリロードボタンをお使い下さい。(このページ自体を更新しないで下さい。)'
+ entrance_announce_ajax: '負荷軽減のため、リロードにはリロードボタンをお使い下さい。(このページ自体を更新しないで下さい。)',
+ log_announce: '日付などを指定したログの閲覧時は、自動リロードが一時的に無効になります。'
 };
 PT2.text.error = {
  malformed_cid: '不正な cid です。',
@@ -52,7 +53,8 @@ PT2.text.error = {
  sql_error: 'データベースの処理中にエラーが発生しました。',
  unknown_command: '認識できないコマンドです。',
  failed_xsl_load: 'XSL ファイルの読み込みに失敗しました。ページを開き直して下さい。',
- failed_xml_load: '通信に失敗しました。',
+ failed_xml_load: '指定した日付のログは存在しないようです。',
+ failed_php_load: 'ログの読み込みに失敗しました。',
  copy_not_ready: 'まだコピーの準備ができていません。',
  invalid_xml_filename: '日付の指定にミスがあります。',
  ex: '予期せぬエラーです。'
@@ -98,9 +100,11 @@ PT2.S.init = function() {
 	 .F.disableButton()
 	 .C.setChatAdjuster()
 	 .C.addLogViewer()
+	 .C.movableLogViewer()
 	 .C.processChatLink()
 	 .C.processBNElm()
 	 .C.processAlert()
+	 .C.movePastLog()
 	 .C.addEntranceMessage();
 
 };
@@ -168,6 +172,8 @@ PT2.S.saveVars = function() {
 
 	// WebKit 系は XSL に ownerDocument を合わせないと XSLT できない
 	// XSLTProcessor での判別はテストデータ用意しないと無理っぽいから簡易判別
+	// 2012.4.8 に 17.0.963.12 dev-m で XSLT もできるし $.support.checkOn も true になってることを確認
+	// 関係ない機能で判別してたから両方オンになったのは単なる偶然、ヒヤヒヤもの
 	if (!$.support.checkOn) PT2.toXSLDoc = true;
 	// clipboardData のラッパー
 	if (typeof(window.clipboardData) != 'undefined') {
@@ -620,7 +626,7 @@ PT2.C.addLogViewer = function() {
 	PT2.body.tag('form').attr('id', 'view').submit(PT2.X.loadPastLog)
 	 .tag('p').addClass('logdate')
 	  .tag('input').attr('id', 'year').val(yday.getFullYear()).gat()
-	  .tag('input').attr('id', 'month').val(yday.getMonth()+1).gat()
+	  .tag('input').attr('id', 'month').val(yday.getMonth() + 1).gat()
 	  .tag('input').attr('id', 'day').val(yday.getDate()).gat()
 	  .tag('input').attr({ type: 'checkbox', id: 'reverselog' }).gat()
 	  .tag('label').attr('for', 'reverselog').text(PT2.text.reverselog).gat()
@@ -642,6 +648,48 @@ PT2.C.addLogViewer = function() {
 	PT2.input.getlog = $('#getlog');
 	PT2.input.logtext = $('#logtext');
 	PT2.input.button = $('#say button,#getlog');
+
+	return(PT2);
+
+};
+
+// 過去ログ表示用フォームを動かせるようにする
+PT2.C.movableLogViewer = function() {
+
+	var pos = PT2.fView.position();
+
+	PT2.fView.mousedown(function(e) {
+
+		var mov = { left: e.pageX, top: e.pageY };
+
+		PT2.fView.mousemove(function(e) {
+
+			pos.left += e.pageX - mov.left;
+			pos.top += e.pageY - mov.top;
+			PT2.fView.css({ left: pos.left + 'px', top: pos.top + 'px' });
+			mov = { left: e.pageX, top: e.pageY };
+
+			return(false);
+
+		}).one('mouseup', function() {
+
+			PT2.fView.unbind('mousemove');
+
+		});
+
+		return(false);
+
+	}).mouseout(function(e) {
+
+		PT2.fView.unbind('mousemove');
+
+	});
+
+	PT2.fView.children().mousedown(function(e){
+
+		e.stopPropagation();
+
+	});
 
 	PT2.fView.hide();
 
@@ -694,7 +742,41 @@ PT2.C.showPastLog = function(logs) {
 	if (logText) PT2.input.logtext.val(logText).show();
 	 else PT2.input.logtext.hide();
 
+	if (PT2.fView.is(':hidden')) PT2.fView.show('slow');
+
 	PT2.F.enableButton();
+
+};
+
+// 過去ログを過去ログ表示部に移動
+PT2.C.movePastLog = function() {
+
+	// 過去ログ閲覧モードじゃなかったら帰る
+	if ($('p.note', PT2.dChat).is('[title="log_announce"]') == false) return(PT2);
+
+	// 初回表示時しか使わないからリセットなし
+	PT2.dPast.tag('div').attr('id', 'pastcontainer').gat();
+	var pastcontainer = $('#pastcontainer');
+
+	$('p.chat', PT2.dChat).each(function() {
+
+		if (this.id) this.id = 'past-' + this.id;
+		pastcontainer.append($(this));
+
+	});
+
+	// 日付を合わせる
+	if (location.href.match(/([\?&]f=|#!\/)log-(\d{4})(\d{2})(\d{2})/)) {
+
+		PT2.input.year.val(parseInt(RegExp.$2, 10));
+		PT2.input.month.val(parseInt(RegExp.$3, 10));
+		PT2.input.day.val(parseInt(RegExp.$4, 10));
+
+	}
+
+	PT2.fView.show('slow');
+
+	return(PT2);
 
 };
 
@@ -726,6 +808,54 @@ PT2.C.addLog = function(logs) {
 
 };
 
+// #!/ 付いてたら ?f= 相当の動作をする
+PT2.X.applyState = function() {
+
+	if (!location.hash.match(/!\/(log|cid)-(\w+)/)) return(PT2);
+
+	var type = RegExp.$1;
+	var target = RegExp.$2;
+
+	switch (type) {
+
+	case 'log' :
+		PT2.X.loadPastLog(target);
+		break;
+
+	case 'cid' :
+		PT2.X.loadCidLog(target);
+		break;
+
+	}
+
+	return(PT2);
+
+};
+
+// ?f= を #!/ にして Ajax で遷移したよ感を醸し出す
+PT2.X.changeState = function() {
+
+	if (location.href.match(/[\?&]f=((log|cid)-\w+)/)) PT2.X.setState(RegExp.$1);
+	// PT2.C.movePastLog でやったら XSLT の準備できてなかった
+	if ($('p.note', PT2.dChat).is('[title="log_announce"]')) PT2.X.superReload();
+
+	return(PT2);
+
+};
+
+// 今どんな状態か URL で表現する
+// pjax もうしばらくおあずけ
+PT2.X.setState = function(stat) {
+
+	// 履歴の活用ができそうなら pushState も考える
+	if (typeof(history.replaceState) == 'function')
+	 history.replaceState(null, null, PT2.URL + '#!/' + stat);
+	// IE はほっとく
+	// else location.hash = stat;
+
+	return(PT2);
+
+};
 
 // 設定ファイルの読み込み
 PT2.X.loadConf = function() {
@@ -813,7 +943,7 @@ PT2.X.loadXSL = function() {
 PT2.X.setXSL = function(data) {
 
 	PT2.logXSL = data;
-	PT2.F.enableButton();
+	PT2.X.applyState().X.changeState().F.enableButton();
 
 }
 
@@ -872,7 +1002,7 @@ PT2.X.loadLog = function(method, reset) {
 		data: param,
 		dataType: contentType,
 		success: callback,
-		error: PT2.A.xmlError
+		error: PT2.A.phpError
 	});
 
 	return(PT2);
@@ -880,13 +1010,49 @@ PT2.X.loadLog = function(method, reset) {
 };
 
 // 過去ログ取得
-PT2.X.loadPastLog = function() {
+PT2.X.loadPastLog = function(logName) {
 
-	var year = '' + ((parseInt(PT2.input.year.val(), 10) % 2000) + 2000);
-	var mon = '0' + parseInt(PT2.input.month.val(), 10);
-	var day = '0' + parseInt(PT2.input.day.val(), 10);
+	var today = new Date();
+	var year = '' + today.getFullYear();
+	var mon = '0' + (today.getMonth() + 1);
+	var day = '0' + today.getDate();
+	mon = mon.substr(mon.length - 2);
+	day = day.substr(day.length - 2);
+	today = '' + year + mon + day;
 
-	var logName = year + mon.substr(mon.length - 2) + day.substr(day.length - 2);
+	// 引数優先
+	if (typeof(logName) == 'string') {
+
+		// 指定変だったら知らんぷりして帰る
+		if (!logName.match(/^((\d{4})(\d{2})(\d{2})|today)$/)) return(false);
+
+		if (RegExp.$1 == 'today') {
+
+			logName = today;
+
+		} else {
+
+			year = RegExp.$2;
+			mon = RegExp.$3;
+			day = RegExp.$4;
+
+		}
+
+		PT2.input.year.val(parseInt(year, 10));
+		PT2.input.month.val(parseInt(mon, 10));
+		PT2.input.day.val(parseInt(day, 10));
+
+
+	} else {
+
+		year = '' + ((parseInt(PT2.input.year.val(), 10) % 2000) + 2000);
+		mon = '0' + parseInt(PT2.input.month.val(), 10);
+		day = '0' + parseInt(PT2.input.day.val(), 10);
+		logName = year + mon.substr(mon.length - 2) + day.substr(day.length - 2);
+
+		PT2.X.setState('log-' + logName);
+
+	}
 
 	if (!logName.match(/^\d{8}$/)) {
 
@@ -894,19 +1060,13 @@ PT2.X.loadPastLog = function() {
 
 	} else {
 
-		var today = new Date();
-		year = '' + today.getFullYear();
-		mon = '0' + (today.getMonth() + 1);
-		day = '0' + today.getDate();
-		today = year + mon.substr(mon.length - 2) + day.substr(day.length - 2);
-
 		// 日付が今日ならリアルタイム生成のログを読みに行く
-		var url = (logName == today) ? PT2.URL + '?a=2&today=1' : PT2.logDir + logName + '.xml';
+		var url = (logName == today) ? PT2.URL + '?a=2&f=log-today' : PT2.logDir + logName + '.xml';
 
 		$.ajax({
 			url: url,
 			dataType: 'xml',
-			cache: false,
+			cache: (logName == today) ? false : true,
 			success: function (data) { PT2.X.xslt(data, 'past'); },
 			error: PT2.A.xmlError
 		});
@@ -915,6 +1075,24 @@ PT2.X.loadPastLog = function() {
 
 	// form のイベント用だから
 	return(false);
+
+};
+
+// cid 指定ログ取得
+// 今のとこ隠し機能扱いでフォームとか用意してない
+PT2.X.loadCidLog = function(cid) {
+
+	if (!cid.match(/^[0-9a-f]{6}$/)) return;
+
+	var url = PT2.URL + '?a=2&f=cid-' + cid;
+
+	$.ajax({
+			url: url,
+			dataType: 'xml',
+			cache: false,
+			success: function (data) { PT2.X.xslt(data, 'past'); },
+			error: PT2.A.phpError
+	});
 
 };
 
@@ -949,7 +1127,7 @@ PT2.X.xslt = function(data, type) {
 	// chrome でうまく XSLT できないときがあった
 	if (!logs) {
 
-		PT2.A.xmlError();
+		PT2.A.phpError();
 		return;
 
 	}
@@ -1210,6 +1388,13 @@ PT2.A.alert = function(message) {
 	}
 
 	return(PT2);
+
+};
+
+// PHP ロードエラー
+PT2.A.phpError = function(req, stat, err) {
+
+	PT2.A.alert(PT2.text.error.failed_php_load).F.enableButton();
 
 };
 

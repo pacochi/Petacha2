@@ -50,7 +50,7 @@
 
      <!--アラート-->
      <xsl:for-each select="error">
-      <p class="alert">
+      <p class="alert" title="{.}">
        <strong>
         <xsl:value-of select="/logs/text/announce" />
         <xsl:variable name="type" select="."/>
@@ -62,7 +62,7 @@
 
      <!--メッセージ-->
      <xsl:for-each select="message">
-      <p class="note">
+      <p class="note" title="{.}">
        <strong>
         <xsl:value-of select="/logs/text/announce" />
         <xsl:variable name="type" select="."/>

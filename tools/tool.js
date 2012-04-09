@@ -47,7 +47,7 @@ view: {
 		 $('<fieldset />').css('clear', 'both').append($('<legend />').text('CSS')).append(PTT.color.view.cssArea)
 		);
 		var writeOffset = $('#write').offset();
-		$('#view').css({ width: '20em', top: (writeOffset.top - 80) + 'px', left: (writeOffset.left - 20) + 'px' }).show();
+		$('#view').css({ width: '20em', top: (writeOffset.top - 120) + 'px', left: (writeOffset.left - 20) + 'px' }).show();
 
 		PTT.color.view.rewriteCSS();
 
@@ -154,7 +154,9 @@ item: {
 	 'span.date': { 'color': 'date-text' },
 	 'p.alert': { 'color': 'alert-text', 'background-color': 'alert-back', 'border-color': 'alert-border' },
 	 'p.note': { 'color': 'note-text', 'background-color': 'note-back', 'border-color': 'note-border' },
-	 'form#view': { 'background-color': 'chat-back', 'border-color': 'note-border' },
+	 'form#view': { 'background-color': 'note-border' },
+	 'div#past': { 'background-color': 'chat-back' },
+	 'p.logdate': { 'background-color': 'chat-back' },
 	 'label.bn:hover': { 'background-color': 'link-back-hover' },
 	 'label.colorpick': { 'color': 'link-text' },
 	 'label.colorpick:hover': { 'background-color': 'link-back-hover' },

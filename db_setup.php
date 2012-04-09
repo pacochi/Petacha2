@@ -32,7 +32,7 @@ backupFile($dbFile);
 backupFile($dbHostFile);
 
 # ログ全般
-$pt2SQL = new PtSQL(new SQLiteDatabase($dbFile));
+$pt2SQL = new PtSQL($dbFile);
 
 # pt2log
 SQLQuery("CREATE TABLE %s (
@@ -94,7 +94,7 @@ SQLQuery("UPDATE %s SET ltime = %d;",
  $pt2misc, PtSQL::R_BOOLEAN, time());
 
 # リモートホストのキャッシュ
-$pt2SQL = new PtSQL(new SQLiteDatabase($dbHostFile));
+$pt2SQL = new PtSQL($dbHostFile);
 
 # pt2host
 SQLQuery("CREATE TABLE %s (
