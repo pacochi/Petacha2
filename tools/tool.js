@@ -472,6 +472,7 @@ item: {
 	 'reloadsec': { parentTag: 'select', attr: [{ name: 'default', text: 'no' }] },
 	 'color': { parentTag: 'select', attr: [{ name: 'default', text: 'no' }] },
 	 'link': { parentTag: 'text', attr: [{ name: 'url', text: 'http://' }] },
+	 'pingserver': { parentTag: 'text', attr: [] },
 	 'cid': { parentTag: 'deny', attr: [] },
 	 'host': { parentTag: 'deny', attr: [] },
 	 'ua': { parentTag: 'deny', attr: [] },
@@ -513,7 +514,9 @@ item: {
 	// 入力欄の生成 (コメント)
 	commentToInput: function() {
 
-		var element = $('<pre />').css('font-style', 'italic').text(this.text);
+		var element = (this.text.match(/^[\r\n\s]*\*/))
+		 ? $('<pre />').css('font-style', 'italic').text(this.text)
+		 : $('<br />').css('display', 'none');
 
 		return(element);
 

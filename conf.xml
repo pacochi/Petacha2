@@ -162,6 +162,14 @@
  <error type="copy_not_ready">まだコピーの準備ができていません。</error>
  <error type="invalid_xml_filename">日付の指定にミスがあります。</error>
  <error type="ex">予期せぬエラーです。</error>
+
+<!--
+ *pingserver - 更新 ping 送信先
+ 誰かが入室したタイミングで 更新 ping が飛びます
+ RSS を利用して入室通知 bot を作る際に設定して下さい
+ -->
+ <pingserver>none</pingserver>
+<!-- <pingserver>http://ping.feedburner.google.com/</pingserver> -->
 </text>
 
 <!--
@@ -176,7 +184,7 @@
  発言ログの cid ([0-9a-f] からなる六文字の文字列) を参照して下さい
  -->
  <cid>000000</cid>
- <cid>ffffff</cid>
+<!-- <cid>ffffff</cid> -->
 
 <!--
  *host - 制限するリモートホストまたはアドレス (部分一致)
@@ -184,15 +192,15 @@
  例示したホストは robots.txt で対策した方がスマートかもしれません
  -->
  <host>.googlebot.com</host>
- <host>.naver.jp</host>
- <host>.search.msn.com</host>
+<!-- <host>.naver.jp</host> -->
+<!-- <host>.search.msn.com</host> -->
 
 <!--
  *ua - 制限するユーザエージェント (部分一致)
  アクセスログを参照して下さい
  -->
- <ua>http://</ua>
- <ua>bot/</ua>
+ <ua>Bot/</ua>
+<!-- <ua>bot/</ua> -->
 
 <!--
  *ref - 制限するリファラ (部分一致)
@@ -200,8 +208,8 @@
  はじいたところでリファラスパムを諦めてくれるかどうかは不明です
  -->
  <ref>tinyurl.com/muryou</ref>
- <ref>jouhou</ref>
- <ref>kasegeru</ref>
+<!-- <ref>jouhou</ref> -->
+<!-- <ref>kasegeru</ref> -->
 
 </deny>
 <!--

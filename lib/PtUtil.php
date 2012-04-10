@@ -30,12 +30,12 @@ class PtUtil {
 		if ($reverse) {
 
 			foreach ($target as $key => $val)
-			 if (strpos($str, $val) !== false) return($key);
+			 if (strpos($str, strval($val)) !== false) return($key);
 
 		} else {
 
 			foreach ($target as $key => $val)
-			 if (strpos($val, $str) !== false) return($key);
+			 if (strpos(strval($val), $str) !== false) return($key);
 
 		}
 
@@ -65,6 +65,38 @@ class PtUtil {
 	public static function crcHex($str) {
 
 		return(sprintf("%08x", crc32($str)));
+
+	}
+
+	# 更新 ping を送信
+	public static function sendWeblogUpdatesPing($url) {
+
+		$context = stream_context_create(array('http' => array(
+		 'method' => 'POST',
+		 'timeout' => 3,
+		 'header' => 'Content-type: text/xml',
+		 'content' => xmlrpc_encode_request( 'weblogUpdates.ping',
+		  array(PtConf::S('text/title'), PtConf::S('text/scripturl')),
+		  array('encoding' => 'UTF-8'))
+		)));
+
+		$response = xmlrpc_decode(file_get_contents(strval($url), false, $context));
+
+		if (!$response) {
+
+			self::debug('ping failed');
+			return(false);
+
+		} elseif (xmlrpc_is_fault($response)) {
+
+			self::debug("ping failed - {$response['faultString']}");
+			return(false);
+
+		} else {
+
+			return(true);
+
+		}
 
 	}
 

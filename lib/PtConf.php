@@ -137,13 +137,13 @@ class PtConf {
 	}
 
 	# 設定項目にアクセス
-	public static function getConfValue($xpath) {
+	public static function getConfValue($xpath, $strict = false) {
 
 		$value = self::$_conf->xpath($xpath);
 
 		if (!is_array($value) || !count($value)) {
 
-			PtUtil::debug("invalid xpath - {$xpath}");
+			if ($strict) PtUtil::debug("invalid xpath - {$xpath}");
 			$value = array();
 
 		}
@@ -155,14 +155,14 @@ class PtConf {
 	# 文字数短めの設定項目アクセス
 	public static function C($xpath) {
 
-		return(self::getConfValue('/conf/' . $xpath));
+		return(self::getConfValue('/conf/' . $xpath, false));
 
 	}
 
 	# 文字数短めの設定項目アクセス (string にして返す)
 	public static function S($xpath) {
 
-		$value = current(self::getConfValue('/conf/' . $xpath));
+		$value = current(self::getConfValue('/conf/' . $xpath, true));
 
 		return(strval($value));
 
@@ -172,7 +172,7 @@ class PtConf {
 	# というか on を true、それ以外を false に変換
 	public static function isOptOn($elm) {
 
-		$value = strtolower(self::S('option/trimurl'));
+		$value = strtolower(self::S("option/{$elm}"));
 
 		return($value == self::ON);
 

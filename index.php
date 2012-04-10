@@ -35,7 +35,7 @@ require_once($libdir . 'PtUser.php');
 $user = new PtUser();
 
 # アクセス制限受けてる場合はそのまま終了
-if ($user->isDenied()) PtUtil::exit403();
+if ($user->isDenied()) PtUtil::exit403($user->cid);
 
 require_once($libdir . 'PtLog.php');
 require_once($libdir . 'PtText.php');

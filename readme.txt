@@ -1,4 +1,4 @@
-ぺたちゃ2 ver. 120409_0 (beta)
+ぺたちゃ2 ver. 120410_0 (beta)
 
 ■概要
 
@@ -49,9 +49,10 @@ petacha2 (実際はバージョン名などが付きます)
 │├pt2host.sqlite (設置後に作成されます)
 │├*.xml (設置後に作成されます)
 │├access_*.log (設置後に作成されます)
-│└htaccess.txt
+│├htaccess.txt
+│└index.htm
 ├sessions
-│├.gitkeep (削除しても構いません)
+│├index.htm
 │└(設置後にセッションファイルが作成されます)
 ├index.php
 ├db_setup.php (設置後はサーバから削除して下さい)
@@ -164,6 +165,12 @@ http://twitter.com/petacha2
 
 
 ■バージョン履歴
+
+□ver. 120410_0 (beta)
+conf の option がうまく機能していなかったのを修正
+conf の deny もうまく機能していなかったのを修正
+Android のブラウザなどでスクリプトエラーが出ていたのを修正
+更新 ping を送信する機能を追加
 
 □ver. 120409_0 (beta)
 PHP5.4 でも動くように修正

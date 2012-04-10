@@ -96,13 +96,13 @@ class PtLog {
 
 		case 'cid' :
 
-				$result = $this->loadCidLog($this->user->filter['target']);
+			$result = $this->loadCidLog($this->user->filter['target']);
 
 			break;
 
 		default:
 
-				$result = $this->loadNormalLog();
+			$result = $this->loadNormalLog();
 
 			break;
 
@@ -436,6 +436,11 @@ class PtLog {
 
 				$this->addSystemChat('innormal', $this->user->name, $this->user->color);
 				$this->addMessage('chat_announce');
+
+				# 更新 ping 送信
+				$pingserver = PtConf::C('text/pingserver');
+				foreach ($pingserver as $server) if (strpos(strval($server), 'http') === 0)
+				 PtUtil::sendWeblogUpdatesPing($server);
 
 			}
 
