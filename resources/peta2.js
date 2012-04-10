@@ -753,6 +753,8 @@ PT2.C.showPastLog = function(logs) {
 // 過去ログを過去ログ表示部に移動
 PT2.C.movePastLog = function() {
 
+	if (!PT2.fView) return(PT2);
+
 	// 過去ログ閲覧モードじゃなかったら帰る
 	if ($('p.note', PT2.dChat).is('[title="log_announce"]') == false) return(PT2);
 
