@@ -71,12 +71,14 @@ class PtUtil {
 	# 更新 ping を送信
 	public static function sendWeblogUpdatesPing($url) {
 
+		$blogURL = (isset($url['feed']) && strlen($url['feed'])) ? strval($url['feed']) : PtConf::S('text/scripturl');
+
 		$context = stream_context_create(array('http' => array(
 		 'method' => 'POST',
 		 'timeout' => 3,
 		 'header' => 'Content-type: text/xml',
 		 'content' => xmlrpc_encode_request( 'weblogUpdates.ping',
-		  array(PtConf::S('text/title'), PtConf::S('text/scripturl')),
+		  array(PtConf::S('text/title'), $blogURL),
 		  array('encoding' => 'UTF-8'))
 		)));
 

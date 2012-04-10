@@ -168,8 +168,8 @@
  誰かが入室したタイミングで 更新 ping が飛びます
  RSS を利用して入室通知 bot を作る際に設定して下さい
  -->
- <pingserver>none</pingserver>
-<!-- <pingserver>http://ping.feedburner.google.com/</pingserver> -->
+ <pingserver feed="">none</pingserver>
+<!-- <pingserver feed="http://feeds.feedburner.com/あなたのフィード名">http://ping.feedburner.google.com/</pingserver> -->
 </text>
 
 <!--
