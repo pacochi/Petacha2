@@ -143,7 +143,7 @@ class PtUtil {
 	public static function tryChmod($file, $permission) {
 
 		# 既に満たしてたらそれでいい事にしておく
-		if (fileperms($file) & $permission) return(true);
+		if ((fileperms($file) & 0777) == $permission) return(true);
 		# 所有者が違ってたらやめておく
 		if (!extension_loaded('posix') || posix_getuid() !== fileowner($file)) return(false);
 
@@ -205,8 +205,10 @@ class PtUtil {
 
 		if ($errno != E_NOTICE && $errno != E_STRICT) {
 
+			$mask = umask(0);
 			$message = "{$errstr} (type:{$errno}, file:{$errfile}, line:{$errline})";
 			error_log(date("Y.m.d H:i") . " : {$message}\n({$env})\n\n", 3, $file);
+			umask($mask);
 
 		}
 

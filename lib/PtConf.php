@@ -83,6 +83,17 @@ class PtConf {
 
 		# リモートホスト
 		$addr = getenv('REMOTE_ADDR');
+
+		# リバースプロキシ用
+		# 127.0.0.1 じゃないような運用してる人ならここもきっと自力で直してくれる
+		if ($addr == '127.0.0.1') {
+
+			$forwardedFor = getenv('HTTP_X_FORWARDED_FOR');
+			$realIP = getenv('HTTP_X_Real_IP');
+			$addr = ($realIP !== false) ? $realIP : (($forwardedFor !== false) ? $forwardedFor : $addr);
+
+		}
+
 		$host = '';
 		$tHost = self::S('vars/hosttable');
 		# 既に PtSQL.php が呼ばれている

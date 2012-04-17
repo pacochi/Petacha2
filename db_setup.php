@@ -114,6 +114,10 @@ SQLQuery("SELECT * FROM %s;",
 SQLQuery("DELETE FROM %s WHERE addr = '%s';",
  $pt2host, PtSQL::R_BOOLEAN, '127.0.0.1');
 
+# リバースプロキシ用に読み書き許可しておく
+PtUtil::tryChmod($dbFile, 0666);
+PtUtil::tryChmod($dbHostFile, 0666);
+
 echo '
 特にエラーが出なかった場合は、セットアップ成功です。
 セットアップが終わったら、このファイル (db_setup.php) はサーバから削除して下さい。

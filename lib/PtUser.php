@@ -17,8 +17,6 @@ class PtUser {
 	private $line = 0; # 行数 (加工)
 	private $filter = array(); # フィルタ (加工)
 
-	public $mode = ''; # 'join' 'chat'
-
 	# コンストラクタ
 	public function __construct() {
 
