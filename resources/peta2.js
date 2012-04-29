@@ -430,7 +430,7 @@ PT2.F.setAutoPaste = function() {
 // 離脱ボタン設置
 PT2.F.setOutButton = function() {
 
-	$('p:last', PT2.fSay).tag('button').attr('id', 'out').text(PT2.text.out).gat();
+	$('p:last', PT2.fSay).tag('button type="submit"').attr('id', 'out').text(PT2.text.out).gat();
 
 	PT2.input.out = $('button#out');
 	PT2.input.button = $('button', PT2.fSay);
@@ -1104,7 +1104,7 @@ PT2.X.loadCidLog = function(cid) {
 PT2.X.receiveHTML = function(data) {
 
 	data = $(data);
-	if (data.get(0).tagName == 'html') data = data.children();
+	if (data.get(0) && data.get(0).tagName == 'html') data = data.children();
 
 	PT2.C.addLog(data);
 
