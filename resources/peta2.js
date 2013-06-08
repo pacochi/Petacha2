@@ -12,7 +12,7 @@ if (typeof(window.PT2) == 'undefined') { // タブ省略
 // インスタンス化とかしないで直に使うおもちゃ箱
 window.PT2 = {};
 // conf.xml 読む前に決めること
-PT2.version = 120410; // よく変え忘れるけど気にしないでね
+PT2.version = 130608; // よく変え忘れるけど気にしないでね
 PT2.confFile = './conf.xml';
 PT2.URL = location.href.replace(/[#\?].*$/, '');
 PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dID：|検証ID：|ﾀｰﾝ\d-\d：|セットID：)\d+/;
@@ -78,6 +78,7 @@ PT2.dPast = null;
 PT2.fSay = null;
 PT2.fView = null;
 PT2.exSelf = null;
+PT2.responseType = null;
 PT2.input = {};
 PT2.S = {}; // スタートとかセットアップとか
 PT2.F = {}; // フォームとか
@@ -145,6 +146,12 @@ PT2.S.XSLTProcessor = function() {
 	xslt.prototype.xsl = null;
 	xslt.prototype.importStylesheet = function(xsl) { this.xsl = xsl; };
 	xslt.prototype.transformToFragment = function(xml, doc) { return(xml.transformNode(this.xsl)); };
+
+	// IE10 でこれつけないと XSLT できない
+	// でもへたにつけっぱにすると Chrome とかで読み込めなくなる
+	// beforeSend: function (xhr, settings) { try { xhr.responseType = 'msxml-document'; } catch(err) {} },
+	// って方のやり方だと何故かつけたことにならなかった
+	if (document.documentMode >= 10) PT2.responseType = 'msxml-document';
 
 	return(xslt);
 
@@ -933,13 +940,18 @@ PT2.X.loadXSL = function() {
 
 	}
 
-	$.ajax({
+	var xhr = {
 		url: PT2.xslFile,
 		dataType: 'xml',
+		xhrFields: {},
 		cache: false,
 		success: PT2.X.setXSL,
 		error: PT2.A.xslError
-	});
+	};
+
+	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
+
+	$.ajax(xhr);
 
 };
 
@@ -998,16 +1010,20 @@ PT2.X.loadLog = function(method, reset) {
 	var xslt = (PT2.input.a.val() == '2');
 	var callback = xslt ? PT2.X.xslt : PT2.X.receiveHTML;
 	var contentType = xslt ? 'xml' : 'html';
-
-	$.ajax({
+	var xhr = {
 		url: PT2.URL,
 		type: method,
 		cache: false,
 		data: param,
 		dataType: contentType,
+		xhrFields: {},
 		success: callback,
 		error: PT2.A.phpError
-	});
+	};
+
+	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
+
+	$.ajax(xhr);
 
 	return(PT2);
 
@@ -1066,14 +1082,18 @@ PT2.X.loadPastLog = function(logName) {
 
 		// 日付が今日ならリアルタイム生成のログを読みに行く
 		var url = (logName == today) ? PT2.URL + '?a=2&f=log-today' : PT2.logDir + logName + '.xml';
-
-		$.ajax({
+		var xhr = {
 			url: url,
 			dataType: 'xml',
+			xhrFields: {},
 			cache: (logName == today) ? false : true,
 			success: function (data) { PT2.X.xslt(data, 'past'); },
 			error: PT2.A.xmlError
-		});
+		};
+
+		if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
+
+		$.ajax(xhr);
 
 	}
 
@@ -1089,14 +1109,18 @@ PT2.X.loadCidLog = function(cid) {
 	if (!cid.match(/^[0-9a-f]{6}$/)) return;
 
 	var url = PT2.URL + '?a=2&f=cid-' + cid;
-
-	$.ajax({
+	var xhr = {
 			url: url,
 			dataType: 'xml',
+			xhrFields: { responseType: PT2.responseType },
 			cache: false,
 			success: function (data) { PT2.X.xslt(data, 'past'); },
 			error: PT2.A.phpError
-	});
+	};
+
+	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
+
+	$.ajax(xhr);
 
 };
 
