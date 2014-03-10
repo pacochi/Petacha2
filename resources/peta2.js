@@ -12,7 +12,7 @@ if (typeof(window.PT2) == 'undefined') { // タブ省略
 // インスタンス化とかしないで直に使うおもちゃ箱
 window.PT2 = {};
 // conf.xml 読む前に決めること
-PT2.version = 130608; // よく変え忘れるけど気にしないでね
+PT2.version = 140310; // よく変え忘れるけど気にしないでね
 PT2.confFile = './conf.xml';
 PT2.URL = location.href.replace(/[#\?].*$/, '');
 PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dID：|検証ID：|ﾀｰﾝ\d-\d：|セットID：)\d+/;
@@ -206,7 +206,7 @@ PT2.S.saveVars = function() {
 
 	// XSLTProcessor のラッパー
 	if (typeof(window.XSLTProcessor) != 'undefined') PT2.XSLTProcessor = window.XSLTProcessor;
-	 else if (typeof(window.ActiveXObject) != 'undefined') PT2.XSLTProcessor = PT2.S.XSLTProcessor();
+	 else if (typeof(window.ActiveXObject) != 'undefined' || 'ActiveXObject' in window) PT2.XSLTProcessor = PT2.S.XSLTProcessor();
 
 	return(PT2);
 
