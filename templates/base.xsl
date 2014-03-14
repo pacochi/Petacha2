@@ -7,7 +7,7 @@
   <meta name="author" content="{conf/text/adminname}" />
   <meta name="viewport" content="width=device-width,user-scalable=yes,initial-scale=1.0" />
   <link type="text/css" rel="stylesheet" href="{conf/path/dir/resources}peta2.css" media="all" />
-  <link type="application/rss+xml" rel="alternate" title="RSS" href="{conf/text/rssurl}" />
+  <link type="application/rss+xml" rel="alternate" title="RSS" href="{logs/rssurl}" />
   <title><xsl:value-of select="conf/text/title" /></title>
   <script type="text/javascript" src="{conf/path/dir/resources}jquery-1.6.1.min.js" charset="UTF-8"><xsl:text> </xsl:text></script>
   <script type="text/javascript" src="{conf/path/dir/resources}jquery.tag.js" charset="UTF-8"><xsl:text> </xsl:text></script>

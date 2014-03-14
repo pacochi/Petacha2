@@ -51,7 +51,7 @@ class PtUser {
 	# RSS モードかどうかチェック
 	public function isRSSMode() {
 
-		return(isset($this->q['rss']));
+		return(isset($this->q['rss']) || isset($this->q['system-rss']));
 
 	}
 
@@ -281,6 +281,14 @@ class PtUser {
 
 		default:
 			break;
+
+		}
+
+		# システムログ RSS
+		if (isset($this->q['system-rss'])) {
+
+			$filter['type'] = 'cid';
+			$filter['target'] = PtConf::S('text/systemcid');
 
 		}
 

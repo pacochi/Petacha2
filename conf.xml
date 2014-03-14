@@ -30,6 +30,12 @@
  -->
  <reloadcount>on</reloadcount>
 
+<!--
+ *pubsubhubbub - PuSH を利用して外部に入室の通知をする
+ twitterfeed で通知 bot を作成する際オンにして下さい
+ -->
+ <pubsubhubbub>off</pubsubhubbub>
+
 </option>
 
 <!--

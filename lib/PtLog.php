@@ -76,6 +76,9 @@ class PtLog {
 	# ログ読み出し
 	private function load() {
 
+		# cid フィルタつけたから RSS の URL 可変になった
+		$rssQuery = '?rss';
+
 		switch ($this->user->filter['type']) {
 
 		case 'log' :
@@ -96,7 +99,9 @@ class PtLog {
 
 		case 'cid' :
 
-			$result = $this->loadCidLog($this->user->filter['target']);
+			$target = $this->user->filter['target'];
+			$result = $this->loadCidLog($target);
+			$rssQuery = ($target == PtConf::S('text/systemcid')) ? '?system-rss' : "?f=cid-{$target}&amp;rss";
 
 			break;
 
@@ -107,6 +112,10 @@ class PtLog {
 			break;
 
 		}
+
+		# RSS の URL
+		if (!$this->user->isAjaxMode())
+		 $this->data->addChild('rssurl', PtConf::S('text/scripturl') . $rssQuery);
 
 		if ($result === false) return(false);
 
@@ -173,6 +182,9 @@ class PtLog {
 	# XML にログを追加
 	private function makeXML($logs, $xml, $rssdate) {
 
+		if ($rssdate && $this->user->isRSSMode())
+		 $scripturl = PtConf::S('text/scripturl');
+
 		foreach ($logs as $line) {
 
 			$id = $line['id'];
@@ -196,8 +208,12 @@ class PtLog {
 			$text->addXML($item);
 
 			# RSS
-			if ($rssdate && $this->user->isRSSMode())
-			 $item->addChild('rssdate', date(DATE_W3C, $line['utime']));
+			if ($rssdate && $this->user->isRSSMode()) {
+
+				$item->addChild('rssdate', date(DATE_W3C, $line['utime']));
+				$item->addChild('guid', "{$scripturl}#r{$id}");
+
+			}
 
 		}
 
@@ -441,6 +457,9 @@ class PtLog {
 				$pingserver = PtConf::C('text/pingserver');
 				foreach ($pingserver as $server) if (strpos(strval($server), 'http') === 0)
 				 PtUtil::sendWeblogUpdatesPing($server);
+
+				# PuSH 送信
+				if (PtConf::isOptOn('pubsubhubbub')) PtUtil::sendPubSubHubbub();
 
 			}
 

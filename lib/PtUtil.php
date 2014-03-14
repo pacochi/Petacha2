@@ -6,6 +6,7 @@
 class PtUtil {
 
 	const ERROR_LOG = './error_log.txt'; # 設定ファイルにエラーログのパスが無かった時用
+	const PUSH_HUB = 'http://pubsubhubbub.appspot.com/'; # PubSubHubbub の送信先
 
 	# セットアップのファイルがあったら起動させない
 	public static function checkDBSetup() {
@@ -92,6 +93,35 @@ class PtUtil {
 		} elseif (xmlrpc_is_fault($response)) {
 
 			self::debug("ping failed - {$response['faultString']}");
+			return(false);
+
+		} else {
+
+			return(true);
+
+		}
+
+	}
+
+	# PuSH の Publish 通知を送信
+	public static function sendPubSubHubbub() {
+
+		$context = stream_context_create(array('http' => array(
+		 'method' => 'POST',
+		 'timeout' => 3,
+		 'ignore_errors' => true,
+		 'header' => 'Content-type: application/x-www-form-urlencoded',
+		 'content' => http_build_query(array(
+		  'hub.mode' => 'publish',
+		  'hub.url' => PtConf::S('text/scripturl') . '?system-rss')
+		 )
+		)));
+
+		$response = file_get_contents(self::PUSH_HUB, false, $context);
+
+		if (strpos($http_response_header[0], '204') === false) {
+
+			self::debug("PuSH failed - {$response}");
 			return(false);
 
 		} else {
@@ -203,7 +233,8 @@ class PtUtil {
 		if (!$file) $file = PtUtil::ERROR_LOG;
 		$env = getenv('REMOTE_ADDR') . ', ' . getenv('HTTP_USER_AGENT');
 
-		if ($errno != E_NOTICE && $errno != E_STRICT) {
+		# PHP 5.2 系で 204 No Content がエラー扱いになる
+		if ($errno != E_NOTICE && $errno != E_STRICT && strpos($errstr, '204') === false) {
 
 			$mask = umask(0);
 			$message = "{$errstr} (type:{$errno}, file:{$errfile}, line:{$errline})";

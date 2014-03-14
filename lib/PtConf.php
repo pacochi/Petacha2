@@ -78,9 +78,6 @@ class PtConf {
 		if (self::isOptOn('trimurl')) $scripturl = preg_replace("/index\.php.?$/", '', $scripturl);
 		self::$_conf->text->addChild('scripturl', $scripturl);
 
-		# RSS の URL
-		self::$_conf->text->addChild('rssurl', "{$scripturl}?rss");
-
 		# リモートホスト
 		$addr = getenv('REMOTE_ADDR');
 

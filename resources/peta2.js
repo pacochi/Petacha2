@@ -12,7 +12,7 @@ if (typeof(window.PT2) == 'undefined') { // タブ省略
 // インスタンス化とかしないで直に使うおもちゃ箱
 window.PT2 = {};
 // conf.xml 読む前に決めること
-PT2.version = 140310; // よく変え忘れるけど気にしないでね
+PT2.version = 140314; // よく変え忘れるけど気にしないでね
 PT2.confFile = './conf.xml';
 PT2.URL = location.href.replace(/[#\?].*$/, '');
 PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dID：|検証ID：|ﾀｰﾝ\d-\d：|セットID：)\d+/;
@@ -244,6 +244,7 @@ PT2.F.setColorPicker = function(colors) {
 		 PT2.input.c.tag('option').css('color', col).attr('value', col).text(col).gat();
 		PT2.input.c.val(col);
 		PT2.F.changeColor();
+
 	};
 
 	$.each(colors, function() {
@@ -625,7 +626,7 @@ PT2.C.addAccKey = function() {
 // 過去ログ表示用フォームの追加
 PT2.C.addLogViewer = function() {
 
-	if (PT2.input.a.val() < 2) return(PT2);
+	if (PT2.input.a.val() < 1) return(PT2);
 
 	var yday = new Date();
 	yday.setTime(yday.getTime() - 86400000);
@@ -738,7 +739,8 @@ PT2.C.showPastLog = function(logs) {
 
 		if (this.id) this.id = 'past-' + this.id;
 
-		if (reverse) {
+		if (this.className == 'alert') PT2.dChat.append($(this));
+		 else if (reverse) {
 
 			var _this = $(this);
 			PT2.dPast.prepend(_this.append('\n'));
@@ -1080,14 +1082,18 @@ PT2.X.loadPastLog = function(logName) {
 
 	} else {
 
+		var xslt = (PT2.input.a.val() == '2');
 		// 日付が今日ならリアルタイム生成のログを読みに行く
-		var url = (logName == today) ? PT2.URL + '?a=2&f=log-today' : PT2.logDir + logName + '.xml';
+		var url = (logName == today) ? PT2.URL + '?a=' + PT2.input.a.val() + '&f=log-today'
+		 : (xslt ? PT2.logDir + logName + '.xml' : '?a=1&f=log-' + logName);
+		var callback = xslt ? function (data) { PT2.X.xslt(data, 'past'); } : function (data) { PT2.X.receiveHTML(data, 'past'); };
+		var contentType = xslt ? 'xml' : 'html';
 		var xhr = {
 			url: url,
-			dataType: 'xml',
+			dataType: contentType,
 			xhrFields: {},
 			cache: (logName == today) ? false : true,
-			success: function (data) { PT2.X.xslt(data, 'past'); },
+			success: callback,
 			error: PT2.A.xmlError
 		};
 
@@ -1125,12 +1131,13 @@ PT2.X.loadCidLog = function(cid) {
 };
 
 // 整形済みデータを受け取る
-PT2.X.receiveHTML = function(data) {
+PT2.X.receiveHTML = function(data, type) {
 
 	data = $(data);
 	if (data.get(0) && data.get(0).tagName == 'html') data = data.children();
 
-	PT2.C.addLog(data);
+	if (type == 'past') PT2.C.showPastLog(data);
+	 else PT2.C.addLog(data);
 
 }
 
