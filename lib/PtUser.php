@@ -168,10 +168,8 @@ class PtUser {
 
 		if (get_magic_quotes_gpc()) $query = array_map('stripslashes', $query);
 
-		# 改行全部要らない (システム発言ではメタ文字として \t を使う)
-		# ヌルバイトを \0 で表すと php のバージョンによって動作が変わるらしい
-		$removeStr = array(chr(0), "\r", "\n", "\t");
-		$query = str_replace($removeStr, ' ', $query);
+		# 制御文字ばっさり削除
+		$query = preg_replace('/\p{Cc}/u', '', $query);
 
 		$this->q = $query;
 
