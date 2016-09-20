@@ -141,7 +141,7 @@ class PtCommand {
 			$delTime = $m[2];
 
 			$data = array($cid, $delDate, $delTime);
-			$data = array_map('sqlite_escape_string', $data);
+			$data = array_map($this->SQL->escape, $data);
 
 			$result = $this->SQL->query(array(
 			 "SELECT * FROM %s WHERE cid = '%s' AND date = '%s' AND time = '%s';",
