@@ -12,7 +12,7 @@ if (typeof(window.PT2) == 'undefined') { // タブ省略
 // インスタンス化とかしないで直に使うおもちゃ箱
 window.PT2 = {};
 // conf.xml 読む前に決めること
-PT2.version = 140314; // よく変え忘れるけど気にしないでね
+PT2.version = 170106; // よく変え忘れるけど気にしないでね
 PT2.confFile = './conf.xml';
 PT2.URL = location.href.replace(/[#\?].*$/, '');
 PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dID：|検証ID：|ﾀｰﾝ\d-\d：|セットID：)\d+/;
@@ -419,7 +419,7 @@ PT2.F.setAutoPaste = function() {
 
 	// オートペーストオンオフ用のチェックボックスとバックアップ
 	$('p:last', PT2.fSay).tag('label').text(PT2.text.autopaste + PT2.text.spliter)
-	 .tag('input').attr({ type: 'checkbox', id: 'autopaste', name: 'autopaste', checked: 'checked' }).val('1').gat()
+	 .tag('input').prop('checked', true).attr({ type: 'checkbox', id: 'autopaste', name: 'autopaste' }).val('1').gat()
 	 .gat()
 	 .tag('label').text(PT2.text.backup + PT2.text.spliter)
 	// ログにむっちゃ残るから「name: 'backup', 」はおあずけ
@@ -443,7 +443,7 @@ PT2.F.setOutButton = function() {
 	PT2.input.out = $('button#out');
 	PT2.input.button = $('button', PT2.fSay);
 	PT2.input.out.click(function() { PT2.input.m.val(PT2.text.out); });
-	PT2.joinText = $('li.self', PT2.uMember).size() ? PT2.text.join : '';
+	PT2.joinText = $('li.self', PT2.uMember).length ? PT2.text.join : '';
 
 	return(PT2);
 
@@ -484,7 +484,7 @@ PT2.F.disableButton = function() {
 // 発言とリロードの開放
 PT2.F.enableButton = function() {
 
-	PT2.input.button.removeAttr('disabled');
+	PT2.input.button.prop('disabled', false);
 	if (PT2.joinText == '') PT2.input.out.attr('disabled', 'disabled');
 
 	return(PT2);
@@ -516,7 +516,8 @@ PT2.C.adjustChatHeight = function() {
 PT2.C.processChatLink = function() {
 
 	// 今のとこ別窓で開くようにするだけ
-	$('a.chatlink', PT2.dChat).live('click', function() {
+//	$('a.chatlink', PT2.dChat).live('click', function() {
+	PT2.dChat.on('click', 'a.chatlink', function() {
 
 		window.open(this.href, '_blank');
 		return(false);
@@ -531,7 +532,8 @@ PT2.C.processChatLink = function() {
 PT2.C.processAlert = function() {
 
 	// クリックで閉じる
-	$('button.close', PT2.dChat).live('click', function() {
+//	$('button.close', PT2.dChat).live('click', function() {
+	PT2.dChat.on('click', 'button.close', function() {
 
 		$(this).parent().slideUp('slow', function(){ $(this).remove(); });
 
@@ -554,16 +556,20 @@ PT2.C.processAlert = function() {
 PT2.C.processBNElm = function() {
 
 	// Flash でコピー可能に
+	// この辺すぐ削除する予定なんだけどとりあえずアップグレードはする
+	// でもクリック何度かしないと有効にならないしもう使わないと思う
 	if (PT2.clipboardData && PT2.clipboardData.swf) {
 
 		// マウス乗っけた時に透明なボタンを重ねる
-		$('label.bn').live('mouseover', function() {
+//		$('label.bn').live('mouseover', function() {
+		PT2.dChat.on('mouseover', 'label.bn', function(e) {
 
 			var _this = $(this);
 			var offset = _this.offset();
 			PT2.P.moveCopySwf(offset.left, offset.top + 1,
 			 Math.min(_this.width(), PT2.dChat.width()),
 			 _this.height()).P.setCopyText(_this.text(), this.id);
+			 e.stopPropagation();
 
 		});
 
@@ -576,7 +582,8 @@ PT2.C.processBNElm = function() {
 	} else if (PT2.clipboardData) {
 
 		// IE での BN クリック時の動作
-		$('input.bn').live('focusin', function() {
+//		$('input.bn').live('focusin', function() {
+		PT2.dChat.on('focusin', 'input.bn', function() {
 
 			PT2.P.copy(this.value).P.addCopiedMark(this.parentNode);
 			this.blur();
@@ -802,7 +809,7 @@ PT2.C.addLog = function(logs) {
 	$('li.member', PT2.uMember).remove();
 	PT2.dTmp.children('li.member').appendTo(PT2.uMember);
 	// 参加状態を更新
-	PT2.joinText = $('li.self', PT2.uMember).size() ? PT2.text.join : '';
+	PT2.joinText = $('li.self', PT2.uMember).length ? PT2.text.join : '';
 	PT2.h1.text(PT2.text.title + PT2.joinText);
 	// 時系列修正
 	var tmpFirst = PT2.dTmp.children().eq(0).attr('id');
@@ -814,7 +821,7 @@ PT2.C.addLog = function(logs) {
 	// 追加
 	PT2.dTmp.children().hide().appendTo(PT2.dChat).fadeIn('normal');
 	// 切り落とし
-	var over = $('p.chat', PT2.dChat).size() - PT2.input.l.val();
+	var over = $('p.chat', PT2.dChat).length - PT2.input.l.val();
 	if (over > 0) $('p.chat:lt(' + over + ')', PT2.dChat).remove();
 
 	PT2.C.addAccKey().C.scrollToLatest().F.enableButton();
