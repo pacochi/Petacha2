@@ -19,7 +19,6 @@ PT2.BNRegExp = /(ver\s?\d+\.|戦士No\.|検証ＩＤ：|ﾀｰﾝ\d+\/BN：|P\dI
 // conf.xml 読んで決めること
 // 一応初期値割り当てとく
 PT2.xslFile = './templates/log.xsl';
-PT2.copySwfFile = './resources/Peta2Copy.swf';
 PT2.logDir = './logs/';
 PT2.reloadCountOption = 'on';
 PT2.text = {
@@ -67,7 +66,6 @@ PT2.XSLTProcessor = null;
 PT2.reloadTimer = false;
 PT2.reloadCounter = 0;
 PT2.logXSL = null;
-PT2.copySwf = null;
 PT2.body = null;
 PT2.h1 = null;
 PT2.uMember = null;
@@ -115,7 +113,6 @@ PT2.S.init = function() {
 PT2.S.clipboardData = function() {
 
 	var clip = {};
-	clip.swf = true;
 	clip.getData = null;
 	clip.setData = null;
 
@@ -127,7 +124,6 @@ PT2.S.clipboardData = function() {
 PT2.S.clipboardDataEx = function() {
 
 	var clip = {};
-	clip.swf = true;
 	clip.getData = true;
 	clip.setData = null;
 
@@ -187,20 +183,11 @@ PT2.S.saveVars = function() {
 
 		PT2.clipboardData = window.clipboardData;
 
-	} else if (typeof(navigator.plugins) != 'undefined'){
+	} else if (typeof(document.execCommand) != 'undefined'){
 
-		var flash = 'application/x-shockwave-flash';
-		var plugin = (navigator.mimeTypes[flash]) ? navigator.mimeTypes[flash].enabledPlugin : null;
-		var version = (plugin && plugin.description) ? plugin.description.split(' ').slice(-2, -1) : 0;
-
-		if (version > 10) {
-
-			// Chrome はページのスクリプトにちょっかい出せないから DOM にちょっかい
-			// Firefox は拡張機能の方で PT2.S.clipboardData を PT2.S.clipboardDataEx に挿げ替えてる
-			PT2.clipboardData = (PT2.input.m.hasClass('apchrome')) ? PT2.S.clipboardDataEx() : PT2.S.clipboardData();
-			PT2.P.addCopySwf();
-
-		}
+		// Chrome はページのスクリプトにちょっかい出せないから DOM にちょっかい
+		// Firefox は拡張機能の方で PT2.S.clipboardData を PT2.S.clipboardDataEx に挿げ替えてる
+		PT2.clipboardData = (PT2.input.m.hasClass('apchrome')) ? PT2.S.clipboardDataEx() : PT2.S.clipboardData();
 
 	}
 
@@ -516,7 +503,6 @@ PT2.C.adjustChatHeight = function() {
 PT2.C.processChatLink = function() {
 
 	// 今のとこ別窓で開くようにするだけ
-//	$('a.chatlink', PT2.dChat).live('click', function() {
 	PT2.dChat.on('click', 'a.chatlink', function() {
 
 		window.open(this.href, '_blank');
@@ -532,7 +518,6 @@ PT2.C.processChatLink = function() {
 PT2.C.processAlert = function() {
 
 	// クリックで閉じる
-//	$('button.close', PT2.dChat).live('click', function() {
 	PT2.dChat.on('click', 'button.close', function() {
 
 		$(this).parent().slideUp('slow', function(){ $(this).remove(); });
@@ -555,55 +540,31 @@ PT2.C.processAlert = function() {
 // BN が入ってる要素の加工
 PT2.C.processBNElm = function() {
 
-	// Flash でコピー可能に
-	// この辺すぐ削除する予定なんだけどとりあえずアップグレードはする
-	// でもクリック何度かしないと有効にならないしもう使わないと思う
-	if (PT2.clipboardData && PT2.clipboardData.swf) {
+	if (PT2.clipboardData) {
 
-		// マウス乗っけた時に透明なボタンを重ねる
-//		$('label.bn').live('mouseover', function() {
-		PT2.dChat.on('mouseover', 'label.bn', function(e) {
+		PT2.dChat.on('focus', 'input.bn', function() {
+
+			var target = this.parentNode;
+			PT2.P.copy(target).P.addCopiedMark(target);
+			this.blur();
+
+		});
+
+		// 既にある BN をクリッカブルに
+		$('em.bn', PT2.dChat).each(function(i) {
 
 			var _this = $(this);
-			var offset = _this.offset();
-			PT2.P.moveCopySwf(offset.left, offset.top + 1,
-			 Math.min(_this.width(), PT2.dChat.width()),
-			 _this.height()).P.setCopyText(_this.text(), this.id);
-			 e.stopPropagation();
-
-		});
-
-		$('#chat,#past').mouseover(function() {
-
-			if (PT2.copySwf.width() > 1) PT2.P.moveCopySwf(-100);
-
-		});
-
-	} else if (PT2.clipboardData) {
-
-		// IE での BN クリック時の動作
-//		$('input.bn').live('focusin', function() {
-		PT2.dChat.on('focusin', 'input.bn', function() {
-
-			PT2.P.copy(this.value).P.addCopiedMark(this.parentNode);
-			this.blur();
+			var bn = _this.text();
+			var bnid = 'bn' + _this.parent().attr('id') + '-' + i;
+			var label = $('<label />').attr('id', bnid).addClass('bn')
+			 .tag('input').addClass('bn').attr({ type: 'radio', name: 'bn' }).val(bn).gat()
+			 .append(bn);
+			_this.before(label).remove();
 
 		});
 
 	}
 
-	// 既にある BN をクリッカブルに
-	if (PT2.clipboardData) $('em.bn', PT2.dChat).each(function(i) {
-
-		var _this = $(this);
-		var bn = _this.text();
-		var bnid = 'bn' + _this.parent().attr('id') + '-' + i;
-		var label = $('<label />').attr('id', bnid).addClass('bn')
-		 .tag('input').addClass('bn').attr({ type: 'radio', name: 'bn' }).val(bn).gat()
-		 .append(bn);
-		_this.before(label).remove();
-
-	});
 
 	PT2.C.addAccKey();
 
@@ -614,8 +575,9 @@ PT2.C.processBNElm = function() {
 // BN のアクセスキーの書き換え
 PT2.C.addAccKey = function() {
 
-	// IE 以外だとクリック以外でコピーできないから意味無い
-	if (!PT2.clipboardData || !PT2.clipboardData.setData) return(PT2);
+	// 2017.01.07 時点でこんな感じ、良くなるかもしれないからつけとく
+	// Tab キー … Fx: 〇, Chrome: △最初の一つにしか移動しない, IE: 〇, Edge: 〇
+	// アクセスキー … Fx: 〇, Chrome: ×, IE: 〇, Edge: ×, ×はユーザ起点扱いされてない
 
 	var aKey = 0;
 	$($('input.bn', PT2.dChat).get().reverse()).each(function() {
@@ -921,12 +883,6 @@ PT2.X.setConf = function(data) {
 
 	PT2.xslFile = conf.find('path>dir>templates').text()
 	 + conf.find('path>xsl>ajax').text();
-
-	PT2.copySwfFile = conf.find('path>dir>resources').text()
-	 + conf.find('path>swf>copy').text();
-
-	PT2.pasteSwfFile = conf.find('path>dir>resources').text()
-	 + conf.find('path>swf>paste').text();
 
 	PT2.logDir = conf.find('path>dir>logs').text();
 
@@ -1262,61 +1218,6 @@ PT2.X.addConf = function(xml, doc) {
 
 };
 
-// コピー用 swf を呼び出す
-// PT2.S.clipboardData から移動した
-PT2.P.addCopySwf = function() {
-
-	if (PT2.copySwf) {
-
-		// バージョンアップを促すため一時的に入れてるだけなのでべた書き
-		// レビュー通ってから出す
-		// PT2.A.addNote('AutoPaster のバージョンが古いようです。オートペーストがうまく動作しない場合は最新版にしてみて下さい。');
-		return;
-	}
-
-	PT2.body.tag('object').attr({ id: 'copy', type: 'application/x-shockwave-flash', data: PT2.copySwfFile })
-	  .tag('param').attr({ name: 'wmode', value: 'transparent' }).gat()
-	 .gat();
-
-	PT2.copySwf = $('#copy');
-	PT2.copySwf.width(1);
-
-};
-
-// swf の準備ができた時に呼ばれる
-PT2.P.registerCopyFunc = function() {
-
-	// swf にテキストを送る
-	PT2.P.setCopyText = function(txt, id) {
-
-		id = '#' + id;
-		PT2.copySwf.get(0).setCopyText(txt, id);
-
-	};
-
-};
-
-// swf にテキストを送る (準備段階)
-PT2.P.setCopyText = function(txt, id) {
-
-	if (PT2.copySwf && PT2.copySwf.width() > 1) PT2.P.moveCopySwf(-100);
-	PT2.A.alert(PT2.text.error.copy_not_ready);
-
-};
-
-// swf の移動
-PT2.P.moveCopySwf = function(x, y, w, h) {
-
-	if (!x) x = '0';
-	if (!y) y = '0';
-	if (!w) w = 1;
-	if (!h) h = 1;
-	PT2.copySwf.css({ top: y + "px", left: x + "px" }).width(w).height(h);
-
-	return(PT2);
-
-};
-
 // コピーが済んだ時の動作
 PT2.P.addCopiedMark = function(target) {
 
@@ -1327,11 +1228,15 @@ PT2.P.addCopiedMark = function(target) {
 };
 
 // クリップボードへコピー
-PT2.P.copy = function(data) {
+PT2.P.copy = function(target) {
 
-	// どうも情報の同期が取れてない
-	//PT2.clipboardData.setData('Text', data);
-	window.clipboardData.setData('Text', data);
+	var section = window.getSelection();
+	var range = document.createRange();
+	section.removeAllRanges();
+	range.selectNode(target);
+	section.addRange(range);
+	document.execCommand('copy');
+	section.removeAllRanges();
 
 	return(PT2);
 
@@ -1396,7 +1301,7 @@ PT2.A.alertTemplate = function(txt, className) {
 
 	return(alertElm);
 
-}
+};
 
 // 普通のメッセージを出す
 PT2.A.addNote = function(txt) {

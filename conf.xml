@@ -243,11 +243,6 @@
   <ajax       desc="Ajax"              >log.xsl</ajax>
  </xsl>
 
- <swf         desc="Flash ファイル">
-  <copy       desc="コピー用"          >Peta2Copy.swf</copy>
-  <paste      desc="貼り付け用"        >Peta2Paste.swf</paste>
- </swf>
-
 </path>
 <!--
  *vars - 定数に近い変数まとめ
