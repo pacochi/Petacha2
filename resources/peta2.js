@@ -63,6 +63,7 @@ PT2.joinText = '';
 PT2.toXSLDoc = false;
 PT2.clipboardData = null;
 PT2.XSLTProcessor = null;
+PT2.ajax = null;
 PT2.reloadTimer = false;
 PT2.reloadCounter = 0;
 PT2.logXSL = null;
@@ -150,6 +151,15 @@ PT2.S.XSLTProcessor = function() {
 	if (document.documentMode >= 10) PT2.responseType = 'msxml-document';
 
 	return(xslt);
+
+};
+
+// $.ajax の代替を作る
+// 必要最低限
+PT2.S.ajax = function(xhr) {
+
+	// あとで
+	$.ajax(xhr);
 
 };
 
@@ -790,6 +800,26 @@ PT2.C.addLog = function(logs) {
 
 };
 
+// DOM が ready になったら作動するとこ
+PT2.X.start = function() {
+
+	// $.ajax のラッパー
+	// IE11 から XMLHttpRequest で取ってきた XML は完全に XSLT できなくなった
+	PT2.ajax = (typeof(document.documentMode) == 'number' && document.documentMode >= 11) ? PT2.S.ajax : $.ajax;
+
+	PT2.X.loadConf().then(PT2.X.setConf, PT2.A.confError)
+	.then(PT2.X.loadXSL).then(PT2.X.setXSL, PT2.A.xslError).always(PT2.X.ready);
+
+};
+
+// チャット使用準備が整ったら呼ぶとこ
+PT2.X.ready = function() {
+
+	// always() が loadConf にまで効いてる
+	if (PT2.input.a) PT2.X.applyState().X.changeState().F.enableButton();
+
+}
+
 // #!/ 付いてたら ?f= 相当の動作をする
 PT2.X.applyState = function() {
 
@@ -842,20 +872,18 @@ PT2.X.setState = function(stat) {
 // 設定ファイルの読み込み
 PT2.X.loadConf = function() {
 
-	$.ajax({
+	var d = new $.Deferred();
+
+	PT2.ajax({
 		url: PT2.confFile,
 		dataType: 'xml',
-		cache: false,
-		success: PT2.X.setConf,
-		error: function(req, stat, err){
+		cache: false
+	}).then(
+	 function(data) { d.resolve(data); },
+	 function(req, stat, err){ d.reject(req, stat, err); }
+	);
 
-			PT2.A.alert('設定ファイルの読み込みに失敗しました ('
-			 + stat + ')。ページを開き直して下さい。');
-
-		}
-	});
-
-	return(PT2);
+	return(d.promise());
 
 };
 
@@ -890,33 +918,32 @@ PT2.X.setConf = function(data) {
 
 	// 設定値を元にいじる
 	PT2.S.init();
-	// XSL も今のうちつっこんどく
-	PT2.X.loadXSL();
 
 };
 
 // テンプレートファイルの読み込み
 PT2.X.loadXSL = function() {
 
-	if (PT2.input.a && PT2.input.a.val() < 2) {
+	var d = new $.Deferred();
 
-		PT2.F.enableButton();
-		return;
-
-	}
+	if (PT2.input.a && PT2.input.a.val() < 2)
+	 return(d.resolve(null).promise());
 
 	var xhr = {
 		url: PT2.xslFile,
 		dataType: 'xml',
 		xhrFields: {},
-		cache: false,
-		success: PT2.X.setXSL,
-		error: PT2.A.xslError
+		cache: false
 	};
 
 	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
-	$.ajax(xhr);
+	PT2.ajax(xhr).then(
+	 function(data) { d.resolve(data); },
+	 function(req, stat, err){ PT2.input.a.val('1'); d.reject(req, stat, err); }
+	);
+
+	return(d.promise());
 
 };
 
@@ -924,7 +951,6 @@ PT2.X.loadXSL = function() {
 PT2.X.setXSL = function(data) {
 
 	PT2.logXSL = data;
-	PT2.X.applyState().X.changeState().F.enableButton();
 
 }
 
@@ -934,7 +960,6 @@ PT2.X.post = function() {
 	// 削除した時だけログリセット
 	var reset = /^_del_/.test(PT2.input.m.val());
 	PT2.X.loadLog('POST', reset).F.clearSaying();
-	PT2.F.setReloadTimer();
 
 	// form のイベント用だから
 	return(false);
@@ -945,7 +970,6 @@ PT2.X.post = function() {
 PT2.X.reload = function() {
 
 	PT2.X.loadLog('GET', false);
-	PT2.F.setReloadTimer();
 
 };
 
@@ -953,7 +977,6 @@ PT2.X.reload = function() {
 PT2.X.superReload = function() {
 
 	PT2.X.loadLog('GET', true);
-	PT2.F.setReloadTimer();
 
 };
 
@@ -981,14 +1004,12 @@ PT2.X.loadLog = function(method, reset) {
 		cache: false,
 		data: param,
 		dataType: contentType,
-		xhrFields: {},
-		success: callback,
-		error: PT2.A.phpError
+		xhrFields: {}
 	};
 
 	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
-	$.ajax(xhr);
+	PT2.ajax(xhr).then(callback, PT2.A.phpError).then(PT2.C.addLog).always(PT2.F.setReloadTimer);
 
 	return(PT2);
 
@@ -1049,20 +1070,18 @@ PT2.X.loadPastLog = function(logName) {
 		// 日付が今日ならリアルタイム生成のログを読みに行く
 		var url = (logName == today) ? PT2.URL + '?a=' + PT2.input.a.val() + '&f=log-today'
 		 : (xslt ? PT2.logDir + logName + '.xml' : '?a=1&f=log-' + logName);
-		var callback = xslt ? function (data) { PT2.X.xslt(data, 'past'); } : function (data) { PT2.X.receiveHTML(data, 'past'); };
+		var callback = xslt ? PT2.X.xslt : PT2.X.receiveHTML;
 		var contentType = xslt ? 'xml' : 'html';
 		var xhr = {
 			url: url,
 			dataType: contentType,
 			xhrFields: {},
-			cache: (logName == today) ? false : true,
-			success: callback,
-			error: PT2.A.xmlError
+			cache: (logName != today)
 		};
 
 		if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
-		$.ajax(xhr);
+		PT2.ajax(xhr).then(callback, PT2.A.xmlError).then(PT2.C.showPastLog);
 
 	}
 
@@ -1081,36 +1100,37 @@ PT2.X.loadCidLog = function(cid) {
 	var xhr = {
 			url: url,
 			dataType: 'xml',
-			xhrFields: { responseType: PT2.responseType },
-			cache: false,
-			success: function (data) { PT2.X.xslt(data, 'past'); },
-			error: PT2.A.phpError
+			xhrFields: {},
+			cache: false
 	};
 
 	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
-	$.ajax(xhr);
+	PT2.ajax(xhr).then(PT2.X.xslt, PT2.A.phpError).then(PT2.C.showPastLog);
 
 };
 
 // 整形済みデータを受け取る
-PT2.X.receiveHTML = function(data, type) {
+PT2.X.receiveHTML = function(data) {
+
+	var d = new $.Deferred();
 
 	data = $(data);
 	if (data.get(0) && data.get(0).tagName == 'html') data = data.children();
 
-	if (type == 'past') PT2.C.showPastLog(data);
-	 else PT2.C.addLog(data);
+	return(d.resolve(data).promise());
 
-}
+};
 
 // XSLT
-PT2.X.xslt = function(data, type) {
+PT2.X.xslt = function(data) {
+
+	var d = new $.Deferred();
 
 	if (!PT2.logXSL) {
 
 		PT2.A.xslError();
-		return;
+		return(d.reject().promise());
 
 	}
 
@@ -1119,14 +1139,13 @@ PT2.X.xslt = function(data, type) {
 
 	var proc = new PT2.XSLTProcessor();
 	proc.importStylesheet(PT2.logXSL);
-	// Fx 2.0 だとここら辺で style 要素とかが欠落する
 	var logs = proc.transformToFragment(data, document);
 
 	// chrome でうまく XSLT できないときがあった
 	if (!logs) {
 
 		PT2.A.phpError();
-		return;
+		return(d.reject().promise());
 
 	}
 
@@ -1144,8 +1163,7 @@ PT2.X.xslt = function(data, type) {
 
 	}
 
-	if (type == 'past') PT2.C.showPastLog(logs);
-	 else PT2.C.addLog(logs);
+	return(d.resolve(logs).promise());
 
 };
 
@@ -1187,7 +1205,7 @@ PT2.X.copyNode = function(xml) {
 
 	return(data);
 
-}
+};
 
 // 設定項目をログの XML に追加
 PT2.X.addConf = function(xml, doc) {
@@ -1359,7 +1377,14 @@ PT2.A.xslError = function(req, stat, err) {
 
 };
 
-$(PT2.X.loadConf);
+// conf.xml ロードエラー
+PT2.A.confError = function(req, stat, err) {
+
+	PT2.A.alert('設定ファイルの読み込みに失敗しました (' + err + ')。ページを開き直して下さい。');
+
+};
+
+$(PT2.X.start);
 
 } // if (typeof(window.PT2) == 'undefined')
 })();
