@@ -101,7 +101,14 @@ PT2.S.start = function() {
 PT2.S.ready = function() {
 
 	// always() が loadConf にまで効いてる
-	if (PT2.input.a) PT2.X.applyState().X.changeState().F.enableButton();
+	if (PT2.input.a) PT2.X.applyState({ hash: '' }).X.changeState().F.enableButton();
+
+	// PT2.C.movePastLog でやったら XSLT の準備できてなかった
+	if ($('p.note', PT2.dChat).is('[title="log_announce"]')) PT2.X.superReload();
+
+	if (typeof(window.history.pushState) == 'function') $(window).on('popstate', function(e){
+	 PT2.X.applyState((e.originalEvent.state) ? e.originalEvent.state : { hash: '' });
+	});
 
 }
 
@@ -829,9 +836,10 @@ PT2.C.addLog = function(logs) {
 };
 
 // #!/ 付いてたら ?f= 相当の動作をする
-PT2.X.applyState = function() {
+PT2.X.applyState = function(stat) {
 
-	if (!location.hash.match(/!\/(log|cid)-(\w+)/)) return(PT2);
+	if (!stat.hash.match(/(log|cid)-(\w+)/) && !location.hash.match(/!\/(log|cid)-(\w+)/))
+	 return(PT2);
 
 	var type = RegExp.$1;
 	var target = RegExp.$2;
@@ -856,22 +864,16 @@ PT2.X.applyState = function() {
 PT2.X.changeState = function() {
 
 	if (location.href.match(/[\?&]f=((log|cid)-\w+)/)) PT2.X.setState(RegExp.$1);
-	// PT2.C.movePastLog でやったら XSLT の準備できてなかった
-	if ($('p.note', PT2.dChat).is('[title="log_announce"]')) PT2.X.superReload();
 
 	return(PT2);
 
 };
 
 // 今どんな状態か URL で表現する
-// pjax もうしばらくおあずけ
 PT2.X.setState = function(stat) {
 
-	// 履歴の活用ができそうなら pushState も考える
-	if (typeof(history.replaceState) == 'function')
-	 history.replaceState(null, null, PT2.URL + '#!/' + stat);
-	// IE はほっとく
-	// else location.hash = stat;
+	if (typeof(window.history.pushState) == 'function')
+	 window.history.pushState({ hash : stat }, null, PT2.URL + '#!/' + stat);
 
 	return(PT2);
 
