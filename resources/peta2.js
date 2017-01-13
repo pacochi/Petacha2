@@ -77,7 +77,7 @@ PT2.dPast = null;
 PT2.fSay = null;
 PT2.fView = null;
 PT2.exSelf = null;
-PT2.responseType = null;
+PT2.msXML = false;
 PT2.input = {};
 PT2.S = {}; // スタートとかセットアップとか
 PT2.F = {}; // フォームとか
@@ -86,7 +86,27 @@ PT2.X = {}; // ajax とか XSLT とか
 PT2.A = {}; // アラートとか
 PT2.P = {}; // クリップボードとか
 
-// Dom と設定ファイルの準備ができたらすること
+// 最初にすること
+PT2.S.start = function() {
+
+	// $.ajax のラッパー
+	// IE11 から XMLHttpRequest で取ってきた XML は完全に XSLT できなくなった
+	PT2.ajax = (typeof(document.documentMode) == 'number' && document.documentMode >= 10) ? PT2.S.ajax : $.ajax;
+
+	PT2.X.loadConf().then(PT2.X.setConf, PT2.A.confError)
+	 .then(PT2.X.loadXSL).then(PT2.X.setXSL, PT2.A.xslError).always(PT2.S.ready);
+
+};
+
+// チャット使用準備が整ったら呼ぶとこ
+PT2.S.ready = function() {
+
+	// always() が loadConf にまで効いてる
+	if (PT2.input.a) PT2.X.applyState().X.changeState().F.enableButton();
+
+}
+
+// DOM と設定ファイルの準備ができたらすること
 PT2.S.init = function() {
 
 	PT2
@@ -135,8 +155,7 @@ PT2.S.clipboardDataEx = function() {
 // window.XSLTProcessor の代替を作る
 PT2.S.XSLTProcessor = function() {
 
-	// IE7 で XSLT できない、原因はまだ特定してない
-	if (typeof(document.documentMode) != 'number' || document.documentMode < 8)
+	if (typeof(document.documentMode) != 'number' || document.documentMode < 10)
 	 return(null);
 
 	var xslt = function() {};
@@ -144,11 +163,7 @@ PT2.S.XSLTProcessor = function() {
 	xslt.prototype.importStylesheet = function(xsl) { this.xsl = xsl; };
 	xslt.prototype.transformToFragment = function(xml, doc) { return(xml.transformNode(this.xsl)); };
 
-	// IE10 でこれつけないと XSLT できない
-	// でもへたにつけっぱにすると Chrome とかで読み込めなくなる
-	// beforeSend: function (xhr, settings) { try { xhr.responseType = 'msxml-document'; } catch(err) {} },
-	// って方のやり方だと何故かつけたことにならなかった
-	if (document.documentMode >= 10) PT2.responseType = 'msxml-document';
+	PT2.msXML = true;
 
 	return(xslt);
 
@@ -158,8 +173,27 @@ PT2.S.XSLTProcessor = function() {
 // 必要最低限
 PT2.S.ajax = function(xhr) {
 
-	// あとで
-	$.ajax(xhr);
+	var d = new $.Deferred();
+
+	if (!xhr.type) xhr.type = 'GET';
+	if (!xhr.cache && xhr.type == 'GET')
+	 xhr.url += (xhr.url.indexOf('?') == -1) ? ('?_=' + Date.now()) : ('&_=' + Date.now());
+
+	var xmlHTTP = new ActiveXObject('Msxml2.ServerXMLHTTP');
+
+	xmlHTTP.onreadystatechange = function () {
+
+		if (xmlHTTP.readyState != 4) return;
+		if (xmlHTTP.status == '200') d.resolve(xmlHTTP.responseXML);
+		 else d.reject(xmlHTTP, xmlHTTP.status, xmlHTTP.statusText);
+
+	};
+
+	xmlHTTP.open (xhr.type, xhr.url, true);
+    xmlHTTP.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xmlHTTP.send(xhr.data);
+
+	return(d.promise());
 
 };
 
@@ -800,26 +834,6 @@ PT2.C.addLog = function(logs) {
 
 };
 
-// DOM が ready になったら作動するとこ
-PT2.X.start = function() {
-
-	// $.ajax のラッパー
-	// IE11 から XMLHttpRequest で取ってきた XML は完全に XSLT できなくなった
-	PT2.ajax = (typeof(document.documentMode) == 'number' && document.documentMode >= 11) ? PT2.S.ajax : $.ajax;
-
-	PT2.X.loadConf().then(PT2.X.setConf, PT2.A.confError)
-	.then(PT2.X.loadXSL).then(PT2.X.setXSL, PT2.A.xslError).always(PT2.X.ready);
-
-};
-
-// チャット使用準備が整ったら呼ぶとこ
-PT2.X.ready = function() {
-
-	// always() が loadConf にまで効いてる
-	if (PT2.input.a) PT2.X.applyState().X.changeState().F.enableButton();
-
-}
-
 // #!/ 付いてたら ?f= 相当の動作をする
 PT2.X.applyState = function() {
 
@@ -932,11 +946,8 @@ PT2.X.loadXSL = function() {
 	var xhr = {
 		url: PT2.xslFile,
 		dataType: 'xml',
-		xhrFields: {},
 		cache: false
 	};
-
-	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
 	PT2.ajax(xhr).then(
 	 function(data) { d.resolve(data); },
@@ -1003,11 +1014,8 @@ PT2.X.loadLog = function(method, reset) {
 		type: method,
 		cache: false,
 		data: param,
-		dataType: contentType,
-		xhrFields: {}
+		dataType: contentType
 	};
-
-	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
 	PT2.ajax(xhr).then(callback, PT2.A.phpError).then(PT2.C.addLog).always(PT2.F.setReloadTimer);
 
@@ -1075,11 +1083,8 @@ PT2.X.loadPastLog = function(logName) {
 		var xhr = {
 			url: url,
 			dataType: contentType,
-			xhrFields: {},
 			cache: (logName != today)
 		};
-
-		if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
 		PT2.ajax(xhr).then(callback, PT2.A.xmlError).then(PT2.C.showPastLog);
 
@@ -1100,11 +1105,8 @@ PT2.X.loadCidLog = function(cid) {
 	var xhr = {
 			url: url,
 			dataType: 'xml',
-			xhrFields: {},
 			cache: false
 	};
-
-	if (PT2.responseType) xhr.xhrFields.responseType = PT2.responseType;
 
 	PT2.ajax(xhr).then(PT2.X.xslt, PT2.A.phpError).then(PT2.C.showPastLog);
 
@@ -1135,6 +1137,7 @@ PT2.X.xslt = function(data) {
 	}
 
 	if (PT2.toXSLDoc) data = PT2.X.addConf(PT2.X.copyNode(data), PT2.logXSL);
+	 else if (PT2.msXML) data = PT2.X.addConfIE(data);
 	 else data = PT2.X.addConf(data);
 
 	var proc = new PT2.XSLTProcessor();
@@ -1154,7 +1157,7 @@ PT2.X.xslt = function(data) {
 
 		// xmlns とかがついてると html() が使えない
 		// 文字列のまま渡すことにした
-		logs = logs.replace(/<html[^>]+>(.*)<\/html>/m, "$1");
+		logs = logs.replace(/<html[^>]+>(.*)<\/html>/m, '$1');
 
 	} else {
 
@@ -1218,11 +1221,12 @@ PT2.X.addConf = function(xml, doc) {
 	}
 
 	// 異なる DOM 間だと一個一個コピーしなきゃだめみたい
+	
 	var dText = $('<text />', doc);
 
 	for (var tag in PT2.text) {
 
-		if (typeof(PT2.text[tag]) == 'string') 
+		if (typeof(PT2.text[tag]) == 'string')
 		 dText.append($('<' + tag + ' />', doc).text(PT2.text[tag]));
 		 else for (var type in PT2.text[tag])
 		 dText.append($('<' + tag + ' />', doc).attr('type', type).text(PT2.text[tag][type]));
@@ -1234,6 +1238,38 @@ PT2.X.addConf = function(xml, doc) {
 
 	return(xml);
 
+};
+
+// 設定項目をログの XML に追加 (IE 用)
+PT2.X.addConfIE = function(doc) {
+
+	// jQuery 挟むとエラー出まくって進まないから素の JS で書いてる
+	var xml = doc.getElementsByTagName('logs')[0];
+
+	var dText = doc.createElement('text');
+
+	for (var tag in PT2.text) if (typeof(PT2.text[tag]) == 'string') {
+
+		var elm = doc.createElement(tag);
+		elm.appendChild(doc.createTextNode(PT2.text[tag]));
+		dText.appendChild(elm);
+
+	} else {
+
+		for (var type in PT2.text[tag]) {
+
+			var elm = doc.createElement(tag);
+			elm.setAttribute('type', type);
+			elm.appendChild(doc.createTextNode(PT2.text[tag][type]));
+			dText.appendChild(elm);
+
+		}
+
+	}
+
+	xml.appendChild(dText);
+
+	return(xml);
 };
 
 // コピーが済んだ時の動作
@@ -1384,7 +1420,7 @@ PT2.A.confError = function(req, stat, err) {
 
 };
 
-$(PT2.X.start);
+$(PT2.S.start);
 
 } // if (typeof(window.PT2) == 'undefined')
 })();
