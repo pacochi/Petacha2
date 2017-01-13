@@ -30,14 +30,13 @@ petacha2 (実際はバージョン名などが付きます)
 │├log.xsl
 │└rss.xsl
 ├resources
-│├jquery-1.6.1.min.js
+│├jquery-3.1.1.min.js
 │├jquery.tag.js
 │├peta2.js
 │├activity.js
 │├activities.js
 │├peta2.css
-│├peta2_color.css
-│└Peta2Copy.swf
+│└peta2_color.css
 ├tools
 │├confeditor.htm
 │├coloreditor.htm
