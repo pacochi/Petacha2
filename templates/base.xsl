@@ -9,7 +9,7 @@
   <link type="text/css" rel="stylesheet" href="{conf/path/dir/resources}peta2.css" media="all" />
   <link type="application/rss+xml" rel="alternate" title="RSS" href="{logs/rssurl}" />
   <title><xsl:value-of select="conf/text/title" /></title>
-  <script type="text/javascript" src="{conf/path/dir/resources}jquery-1.6.1.min.js" charset="UTF-8"><xsl:text> </xsl:text></script>
+  <script type="text/javascript" src="{conf/path/dir/resources}jquery-3.1.1.min.js" charset="UTF-8"><xsl:text> </xsl:text></script>
   <script type="text/javascript" src="{conf/path/dir/resources}jquery.tag.js" charset="UTF-8"><xsl:text> </xsl:text></script>
   <script type="text/javascript" src="{conf/path/dir/resources}peta2.js" charset="UTF-8"><xsl:text> </xsl:text></script>
  </head>
