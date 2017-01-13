@@ -110,7 +110,7 @@ PT2.S.ready = function() {
 	 PT2.X.applyState((e.originalEvent.state) ? e.originalEvent.state : { hash: '' });
 	});
 
-}
+};
 
 // DOM と設定ファイルの準備ができたらすること
 PT2.S.init = function() {
@@ -139,7 +139,7 @@ PT2.S.init = function() {
 // かなり無理がある
 PT2.S.clipboardData = function() {
 
-	var clip = {};
+	const clip = {};
 	clip.getData = null;
 	clip.setData = null;
 
@@ -150,7 +150,7 @@ PT2.S.clipboardData = function() {
 // 拡張機能利用時に使う
 PT2.S.clipboardDataEx = function() {
 
-	var clip = {};
+	const clip = {};
 	clip.getData = true;
 	clip.setData = null;
 
@@ -164,7 +164,7 @@ PT2.S.XSLTProcessor = function() {
 	if (typeof(document.documentMode) != 'number' || document.documentMode < 10)
 	 return(null);
 
-	var xslt = function() {};
+	const xslt = function() {};
 	xslt.prototype.xsl = null;
 	xslt.prototype.importStylesheet = function(xsl) { this.xsl = xsl; };
 	xslt.prototype.transformToFragment = function(xml, doc) { return(xml.transformNode(this.xsl)); };
@@ -179,13 +179,13 @@ PT2.S.XSLTProcessor = function() {
 // 必要最低限
 PT2.S.ajax = function(xhr) {
 
-	var d = new $.Deferred();
+	const d = new $.Deferred();
 
 	if (!xhr.type) xhr.type = 'GET';
 	if (!xhr.cache && xhr.type == 'GET')
 	 xhr.url += (xhr.url.indexOf('?') == -1) ? ('?_=' + Date.now()) : ('&_=' + Date.now());
 
-	var xmlHTTP = new ActiveXObject('Msxml2.ServerXMLHTTP');
+	const xmlHTTP = new ActiveXObject('Msxml2.ServerXMLHTTP');
 
 	xmlHTTP.onreadystatechange = function () {
 
@@ -264,14 +264,14 @@ PT2.F.setColorPicker = function(colors) {
 	PT2.body.tag('div').attr('id', 'picker').gat();
 	PT2.picker = $('#picker');
 	PT2.picker.tag('div').addClass('box').gat().hide();
-	var box = $('div.box', PT2.picker);
+	const box = $('div.box', PT2.picker);
 
 	// パレット作成
 	if (!colors) colors = PT2.F.makeColorPallet();
 
-	var sel = function() {
+	const sel = function() {
 
-		var col = this.title;
+		const col = this.title;
 		if (!PT2.input.c.is(':has(option[value=' + col + '])'))
 		 PT2.input.c.tag('option').css('color', col).attr('value', col).text(col).gat();
 		PT2.input.c.val(col);
@@ -281,7 +281,7 @@ PT2.F.setColorPicker = function(colors) {
 
 	$.each(colors, function() {
 
-		var col = this.toString();
+		const col = this.toString();
 		box.tag('div').css('backgroundColor', col)
 		 .attr('title', col).click(sel).text(' ').gat();
 
@@ -298,15 +298,15 @@ PT2.F.setColorPicker = function(colors) {
 // デフォルトのカラーパレット
 PT2.F.makeColorPallet = function() {
 
-	var colors = [];
-	var n = [0, 0, 2, 1, 1, 3];
-	var i, h, s, v;
-	var hsv2rgb = function(h, s, v) {
+	const colors = [];
+	const n = [0, 0, 2, 1, 1, 3];
+	let i, h, s, v;
+	const hsv2rgb = function(h, s, v) {
 
-		var p = parseInt(h);
-		var f = h - p;
-		var c = [v, v * (1 - s), v * (1 - s * f), v * (1 - s * (1 - f))];
-		for (var i = 0; i < 4; i++) c[i] = parseInt(c[i] * 15).toString(16);
+		const p = parseInt(h);
+		const f = h - p;
+		const c = [v, v * (1 - s), v * (1 - s * f), v * (1 - s * (1 - f))];
+		for (let i = 0; i < 4; i++) c[i] = parseInt(c[i] * 15).toString(16);
 
 		return('#' + c[n[(p + 5) % 6]] + c[n[(p + 1) % 6]] + c[n[(p + 3) % 6]]);
 
@@ -337,7 +337,7 @@ PT2.F.makeColorPallet = function() {
 // カラーピッカーを開く
 PT2.F.openColorPicker = function() {
 
-	var offset = PT2.input.c.offset();
+	let offset = PT2.input.c.offset();
 	offset = { top: Math.min(offset.top, PT2.body.height() - PT2.picker.height()), left: offset.left + PT2.input.c.width() };
 	PT2.picker.css({ top: offset.top + "px", left: offset.left + "px"}).toggle('fast', function() {
 
@@ -435,7 +435,7 @@ PT2.F.drawReloadCount = function() {
 
 	if (PT2.reloadCountOption != 'on') return;
 
-	var count = PT2.text.spliter
+	const count = PT2.text.spliter
 	 + parseInt(PT2.reloadCounter / 100, 10)
 	 + parseInt(PT2.reloadCounter % 100 / 10, 10)
 	 + PT2.reloadCounter % 10;
@@ -486,7 +486,7 @@ PT2.F.setLastId = function(reset) {
 
 	if (PT2.dChat.is(':has(p.chat)')) {
 
-		var lastId = reset ? '0' : $('p.chat:last', PT2.dChat).attr('id').substr(1);
+		const lastId = reset ? '0' : $('p.chat:last', PT2.dChat).attr('id').substr(1);
 		PT2.input.i.val(lastId);
 
 	}
@@ -572,7 +572,7 @@ PT2.C.processAlert = function() {
 	// 既にあるアラートに閉じるボタン付加
 	$('p.note,p.alert', PT2.dChat).each(function() {
 
-		var _this = $(this);
+		const _this = $(this);
 		if (!_this.is(':has(button)'))
 		 _this.tag('button type="button"').addClass('close').text(PT2.text.close).gat();
 
@@ -589,7 +589,7 @@ PT2.C.processBNElm = function() {
 
 		PT2.dChat.on('focus', 'input.bn', function() {
 
-			var target = this.parentNode;
+			const target = this.parentNode;
 			PT2.P.copy(target).P.addCopiedMark(target);
 			this.blur();
 
@@ -598,10 +598,10 @@ PT2.C.processBNElm = function() {
 		// 既にある BN をクリッカブルに
 		$('em.bn', PT2.dChat).each(function(i) {
 
-			var _this = $(this);
-			var bn = _this.text();
-			var bnid = 'bn' + _this.parent().attr('id') + '-' + i;
-			var label = $('<label />').attr('id', bnid).addClass('bn')
+			const _this = $(this);
+			const bn = _this.text();
+			const bnid = 'bn' + _this.parent().attr('id') + '-' + i;
+			const label = $('<label />').attr('id', bnid).addClass('bn')
 			 .tag('input').addClass('bn').attr({ type: 'radio', name: 'bn' }).val(bn).gat()
 			 .append(bn);
 			_this.before(label).remove();
@@ -609,7 +609,6 @@ PT2.C.processBNElm = function() {
 		});
 
 	}
-
 
 	PT2.C.addAccKey();
 
@@ -624,7 +623,7 @@ PT2.C.addAccKey = function() {
 	// Tab キー … Fx: 〇, Chrome: △最初の一つにしか移動しない, IE: 〇, Edge: 〇
 	// アクセスキー … Fx: 〇, Chrome: ×, IE: 〇, Edge: ×, ×はユーザ起点扱いされてない
 
-	var aKey = 0;
+	let aKey = 0;
 	$($('input.bn', PT2.dChat).get().reverse()).each(function() {
 
 		aKey++;
@@ -642,7 +641,7 @@ PT2.C.addLogViewer = function() {
 
 	if (PT2.input.a.val() < 1) return(PT2);
 
-	var yday = new Date();
+	const yday = new Date();
 	yday.setTime(yday.getTime() - 86400000);
 
 	PT2.body.tag('form').attr('id', 'view').submit(PT2.X.loadPastLog)
@@ -680,11 +679,11 @@ PT2.C.movableLogViewer = function() {
 
 	if (!PT2.fView) return(PT2);
 
-	var pos = PT2.fView.position();
+	let pos = PT2.fView.position();
 
 	PT2.fView.mousedown(function(e) {
 
-		var mov = { left: e.pageX, top: e.pageY };
+		let mov = { left: e.pageX, top: e.pageY };
 
 		PT2.fView.mousemove(function(e) {
 
@@ -742,11 +741,11 @@ PT2.C.scrollToLatest = function() {
 // 過去ログを受け取って表示
 PT2.C.showPastLog = function(logs) {
 
-	var reverse = PT2.input.reverselog.is(':checked');
-	var logText = '';
+	const reverse = PT2.input.reverselog.is(':checked');
+	let logText = '';
 
 	PT2.dPast.empty().tag('div').attr('id', 'pastcontainer').html(logs).gat();
-	var pastcontainer = $('#pastcontainer');
+	const pastcontainer = $('#pastcontainer');
 	$('li', pastcontainer).remove();
 
 	$('p', pastcontainer).each(function() {
@@ -756,7 +755,7 @@ PT2.C.showPastLog = function(logs) {
 		if (this.className == 'alert') PT2.dChat.append($(this));
 		 else if (reverse) {
 
-			var _this = $(this);
+			const _this = $(this);
 			PT2.dPast.prepend(_this.append('\n'));
 			logText = _this.clone().children('span.cid,span.date').text('').parent().text() + logText;
 
@@ -783,7 +782,7 @@ PT2.C.movePastLog = function() {
 
 	// 初回表示時しか使わないからリセットなし
 	PT2.dPast.tag('div').attr('id', 'pastcontainer').gat();
-	var pastcontainer = $('#pastcontainer');
+	const pastcontainer = $('#pastcontainer');
 
 	$('p.chat', PT2.dChat).each(function() {
 
@@ -819,16 +818,16 @@ PT2.C.addLog = function(logs) {
 	PT2.joinText = $('li.self', PT2.uMember).length ? PT2.text.join : '';
 	PT2.h1.text(PT2.text.title + PT2.joinText);
 	// 時系列修正
-	var tmpFirst = PT2.dTmp.children().eq(0).attr('id');
+	let tmpFirst = PT2.dTmp.children().eq(0).attr('id');
 	tmpFirst = parseInt((tmpFirst) ? tmpFirst.substr(1) : '');
-	var chatLast = $('p.chat:last', PT2.dChat).attr('id');
+	let chatLast = $('p.chat:last', PT2.dChat).attr('id');
 	chatLast = parseInt((chatLast) ? chatLast.substr(1) : '');
 	if (!isNaN(tmpFirst) && !isNaN(chatLast) && tmpFirst < chatLast)
 	 $('p.chat', PT2.dChat).remove();
 	// 追加
 	PT2.dTmp.children().hide().appendTo(PT2.dChat).fadeIn('normal');
 	// 切り落とし
-	var over = $('p.chat', PT2.dChat).length - PT2.input.l.val();
+	let over = $('p.chat', PT2.dChat).length - PT2.input.l.val();
 	if (over > 0) $('p.chat:lt(' + over + ')', PT2.dChat).remove();
 
 	PT2.C.addAccKey().C.scrollToLatest().F.enableButton();
@@ -841,8 +840,8 @@ PT2.X.applyState = function(stat) {
 	if (!stat.hash.match(/(log|cid)-(\w+)/) && !location.hash.match(/!\/(log|cid)-(\w+)/))
 	 return(PT2);
 
-	var type = RegExp.$1;
-	var target = RegExp.$2;
+	const type = RegExp.$1;
+	const target = RegExp.$2;
 
 	switch (type) {
 
@@ -882,7 +881,7 @@ PT2.X.setState = function(stat) {
 // 設定ファイルの読み込み
 PT2.X.loadConf = function() {
 
-	var d = new $.Deferred();
+	const d = new $.Deferred();
 
 	PT2.ajax({
 		url: PT2.confFile,
@@ -900,11 +899,11 @@ PT2.X.loadConf = function() {
 // 設定内容を変数に保存
 PT2.X.setConf = function(data) {
 
-	var conf = $(data);
+	const conf = $(data);
 	conf.find('text>*').each(function() {
 
-		var _this = $(this);
-		var tag = _this.get(0).tagName;
+		const _this = $(this);
+		const tag = _this.get(0).tagName;
 
 		if (_this.is('[type]')) {
 
@@ -934,12 +933,12 @@ PT2.X.setConf = function(data) {
 // テンプレートファイルの読み込み
 PT2.X.loadXSL = function() {
 
-	var d = new $.Deferred();
+	const d = new $.Deferred();
 
 	if (PT2.input.a && PT2.input.a.val() < 2)
 	 return(d.resolve(null).promise());
 
-	var xhr = {
+	const xhr = {
 		url: PT2.xslFile,
 		dataType: 'xml',
 		cache: false
@@ -959,13 +958,13 @@ PT2.X.setXSL = function(data) {
 
 	PT2.logXSL = data;
 
-}
+};
 
 // 発言
 PT2.X.post = function() {
 
 	// 削除した時だけログリセット
-	var reset = /^_del_/.test(PT2.input.m.val());
+	const reset = /^_del_/.test(PT2.input.m.val());
 	PT2.X.loadLog('POST', reset).F.clearSaying();
 
 	// form のイベント用だから
@@ -998,14 +997,14 @@ PT2.X.autoReload = function() {
 PT2.X.loadLog = function(method, reset) {
 
 	PT2.F.disableButton().F.setLastId(reset);
-	var param = PT2.fSay.serialize();
+	let param = PT2.fSay.serialize();
 
 	// リロードの場合発言は送らない
 	if (method == 'GET') param = param.replace(/(^|&)m=[^&]*(&|$)/, '$1m=$2');
-	var xslt = (PT2.input.a.val() == '2');
-	var callback = xslt ? PT2.X.xslt : PT2.X.receiveHTML;
-	var contentType = xslt ? 'xml' : 'html';
-	var xhr = {
+	const xslt = (PT2.input.a.val() == '2');
+	const callback = xslt ? PT2.X.xslt : PT2.X.receiveHTML;
+	const contentType = xslt ? 'xml' : 'html';
+	const xhr = {
 		url: PT2.URL,
 		type: method,
 		cache: false,
@@ -1022,10 +1021,10 @@ PT2.X.loadLog = function(method, reset) {
 // 過去ログ取得
 PT2.X.loadPastLog = function(logName) {
 
-	var today = new Date();
-	var year = '' + today.getFullYear();
-	var mon = '0' + (today.getMonth() + 1);
-	var day = '0' + today.getDate();
+	let today = new Date();
+	let year = '' + today.getFullYear();
+	let mon = '0' + (today.getMonth() + 1);
+	let day = '0' + today.getDate();
 	mon = mon.substr(mon.length - 2);
 	day = day.substr(day.length - 2);
 	today = '' + year + mon + day;
@@ -1070,13 +1069,13 @@ PT2.X.loadPastLog = function(logName) {
 
 	} else {
 
-		var xslt = (PT2.input.a.val() == '2');
+		const xslt = (PT2.input.a.val() == '2');
 		// 日付が今日ならリアルタイム生成のログを読みに行く
-		var url = (logName == today) ? PT2.URL + '?a=' + PT2.input.a.val() + '&f=log-today'
+		const url = (logName == today) ? PT2.URL + '?a=' + PT2.input.a.val() + '&f=log-today'
 		 : (xslt ? PT2.logDir + logName + '.xml' : '?a=1&f=log-' + logName);
-		var callback = xslt ? PT2.X.xslt : PT2.X.receiveHTML;
-		var contentType = xslt ? 'xml' : 'html';
-		var xhr = {
+		const callback = xslt ? PT2.X.xslt : PT2.X.receiveHTML;
+		const contentType = xslt ? 'xml' : 'html';
+		const xhr = {
 			url: url,
 			dataType: contentType,
 			cache: (logName != today)
@@ -1097,8 +1096,8 @@ PT2.X.loadCidLog = function(cid) {
 
 	if (!cid.match(/^[0-9a-f]{6}$/)) return;
 
-	var url = PT2.URL + '?a=2&f=cid-' + cid;
-	var xhr = {
+	const url = PT2.URL + '?a=2&f=cid-' + cid;
+	const xhr = {
 			url: url,
 			dataType: 'xml',
 			cache: false
@@ -1111,7 +1110,7 @@ PT2.X.loadCidLog = function(cid) {
 // 整形済みデータを受け取る
 PT2.X.receiveHTML = function(data) {
 
-	var d = new $.Deferred();
+	const d = new $.Deferred();
 
 	data = $(data);
 	if (data.get(0) && data.get(0).tagName == 'html') data = data.children();
@@ -1123,7 +1122,7 @@ PT2.X.receiveHTML = function(data) {
 // XSLT
 PT2.X.xslt = function(data) {
 
-	var d = new $.Deferred();
+	const d = new $.Deferred();
 
 	if (!PT2.logXSL) {
 
@@ -1135,9 +1134,9 @@ PT2.X.xslt = function(data) {
 	if (PT2.msXML) data = PT2.X.addConfIE(data);
 	 else data = PT2.X.addConf(data);
 
-	var proc = new PT2.XSLTProcessor();
+	const proc = new PT2.XSLTProcessor();
 	proc.importStylesheet(PT2.logXSL);
-	var logs = proc.transformToFragment(data, document);
+	let logs = proc.transformToFragment(data, document);
 
 	// chrome でうまく XSLT できないときがあった
 	if (!logs) {
@@ -1168,16 +1167,16 @@ PT2.X.xslt = function(data) {
 // 設定項目をログの XML に追加
 PT2.X.addConf = function(doc) {
 
-	// 異なる DOM 間だと一個一個コピーしなきゃだめみたい		
-	var xml = $(doc).find('logs');
-	
-	var dText = $('<text />', doc);
+	// 異なる DOM 間だと一個一個コピーしなきゃだめみたい
+	let xml = $(doc).find('logs');
 
-	for (var tag in PT2.text) {
+	const dText = $('<text />', doc);
+
+	for (let tag in PT2.text) {
 
 		if (typeof(PT2.text[tag]) == 'string')
 		 dText.append($('<' + tag + ' />', doc).text(PT2.text[tag]));
-		 else for (var type in PT2.text[tag])
+		 else for (let type in PT2.text[tag])
 		 dText.append($('<' + tag + ' />', doc).attr('type', type).text(PT2.text[tag][type]));
 
 	}
@@ -1193,21 +1192,21 @@ PT2.X.addConf = function(doc) {
 PT2.X.addConfIE = function(doc) {
 
 	// jQuery 挟むとエラー出まくって進まないから素の JS で書いてる
-	var xml = doc.getElementsByTagName('logs')[0];
+	const xml = doc.getElementsByTagName('logs')[0];
 
-	var dText = doc.createElement('text');
+	const dText = doc.createElement('text');
 
-	for (var tag in PT2.text) if (typeof(PT2.text[tag]) == 'string') {
+	for (let tag in PT2.text) if (typeof(PT2.text[tag]) == 'string') {
 
-		var elm = doc.createElement(tag);
+		const elm = doc.createElement(tag);
 		elm.appendChild(doc.createTextNode(PT2.text[tag]));
 		dText.appendChild(elm);
 
 	} else {
 
-		for (var type in PT2.text[tag]) {
+		for (let type in PT2.text[tag]) {
 
-			var elm = doc.createElement(tag);
+			const elm = doc.createElement(tag);
 			elm.setAttribute('type', type);
 			elm.appendChild(doc.createTextNode(PT2.text[tag][type]));
 			dText.appendChild(elm);
@@ -1233,8 +1232,8 @@ PT2.P.addCopiedMark = function(target) {
 // クリップボードへコピー
 PT2.P.copy = function(target) {
 
-	var section = window.getSelection();
-	var range = document.createRange();
+	const section = window.getSelection();
+	const range = document.createRange();
 	section.removeAllRanges();
 	range.selectNode(target);
 	section.addRange(range);
@@ -1260,8 +1259,8 @@ PT2.P.paste = function() {
 // ペースト (IE)
 PT2.P.pasteIE = function() {
 
-	//var data = '' + PT2.clipboardData.getData('Text');
-	var data = '' + window.clipboardData.getData('Text');
+	//const data = '' + PT2.clipboardData.getData('Text');
+	const data = '' + window.clipboardData.getData('Text');
 
 	if (data != '' && !data.match(/[\r\n]/) && data.match(PT2.BNRegExp)) {
 
@@ -1298,7 +1297,7 @@ PT2.P.pasteCr = function() {
 // アラートの雛形
 PT2.A.alertTemplate = function(txt, className) {
 
-	var alertElm = $('<p />').addClass(className)
+	const alertElm = $('<p />').addClass(className)
 	 .tag('strong').text(PT2.text.announce + txt).gat()
 	 .tag('button type="button"').addClass('close').text(PT2.text.close).gat();
 
