@@ -60,10 +60,10 @@ PT2.text.error = {
 };
 // 色々準備が終わってから使う値
 PT2.joinText = '';
-PT2.toXSLDoc = false;
 PT2.clipboardData = null;
 PT2.XSLTProcessor = null;
 PT2.ajax = null;
+PT2.msXML = false;
 PT2.reloadTimer = false;
 PT2.reloadCounter = 0;
 PT2.logXSL = null;
@@ -77,7 +77,6 @@ PT2.dPast = null;
 PT2.fSay = null;
 PT2.fView = null;
 PT2.exSelf = null;
-PT2.msXML = false;
 PT2.input = {};
 PT2.S = {}; // スタートとかセットアップとか
 PT2.F = {}; // フォームとか
@@ -217,11 +216,6 @@ PT2.S.saveVars = function() {
 	 i: $('input#i')
 	};
 
-	// WebKit 系は XSL に ownerDocument を合わせないと XSLT できない
-	// XSLTProcessor での判別はテストデータ用意しないと無理っぽいから簡易判別
-	// 2012.4.8 に 17.0.963.12 dev-m で XSLT もできるし $.support.checkOn も true になってることを確認
-	// 関係ない機能で判別してたから両方オンになったのは単なる偶然、ヒヤヒヤもの
-	if (!$.support.checkOn) PT2.toXSLDoc = true;
 	// clipboardData のラッパー
 	if (typeof(window.clipboardData) != 'undefined') {
 
@@ -1136,8 +1130,7 @@ PT2.X.xslt = function(data) {
 
 	}
 
-	if (PT2.toXSLDoc) data = PT2.X.addConf(PT2.X.copyNode(data), PT2.logXSL);
-	 else if (PT2.msXML) data = PT2.X.addConfIE(data);
+	if (PT2.msXML) data = PT2.X.addConfIE(data);
 	 else data = PT2.X.addConf(data);
 
 	var proc = new PT2.XSLTProcessor();
@@ -1170,57 +1163,11 @@ PT2.X.xslt = function(data) {
 
 };
 
-// ownerDocument を XSL に合わせて作り直す
-PT2.X.copyNode = function(xml) {
-
-	doc = PT2.logXSL;
-
-	var data = $('<logs />', doc);
-
-	// ネスト三段だし再帰かけずに強行
-	$(xml).find('logs').children().each(function() {
-
-		var node = this.tagName;
-		var log = $('<' + node + ' />', doc);
-		if (node == 'chat' || node == 'member') $(this).children().each(function() {
-
-			var node = this.tagName;
-			var param = $('<' + node + ' />', doc);
-			if (node == 'body') $(this).children().each(function() {
-
-				var node = this.tagName;
-				var texts = $('<' + node + ' />', doc).text($(this).text());
-				if (node == 'name') texts.attr('color', $(this).attr('color'));
-
-				param.append(texts);
-
-			});
-			 else param.text($(this).text());
-
-			log.append(param);
-
-		});
-		 else log.text($(this).text());
-
-		data.append(log);
-
-	});
-
-	return(data);
-
-};
-
 // 設定項目をログの XML に追加
-PT2.X.addConf = function(xml, doc) {
+PT2.X.addConf = function(doc) {
 
-	if (!doc) {
-
-		doc = xml;
-		xml = $(xml).find('logs');
-
-	}
-
-	// 異なる DOM 間だと一個一個コピーしなきゃだめみたい
+	// 異なる DOM 間だと一個一個コピーしなきゃだめみたい		
+	var xml = $(doc).find('logs');
 	
 	var dText = $('<text />', doc);
 
