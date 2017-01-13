@@ -146,10 +146,10 @@ http://chat.am.cute.bz/help/twitter_bot
 
 ■ライセンス
 
-同梱されている jQuery (resources/jquery-1.6.1.min.js) は、
+同梱されている jQuery (resources/jquery-3.1.1.min.js) は、
 MIT ライセンスと GPL のデュアル・ライセンスです。
 http://jquery.org/license/
-著作権表示などは resources/jquery-1.6.1.min.js の冒頭に書かれています。
+著作権表示などは resources/jquery-3.1.1.min.js の冒頭に書かれています。
 
 同梱されている jQuery Tag プラグイン (resources/jquery.tag.js) も、
 jQuery と同じ MIT ライセンスと GPL のデュアル・ライセンスです。
@@ -168,6 +168,12 @@ http://twitter.com/petacha2
 
 
 ■バージョン履歴
+
+□ver. 170113_0 (beta)
+jQuery のバージョンを 3.1.1 に変更
+コピー用 Flash の廃止
+過去ログ閲覧時のアンカーを履歴に残すよう修正
+IE9 以前の対応を終了
 
 □ver. 160920_0 (beta)
 一部の制御文字のみ削除していたのを全て削除するように変更
